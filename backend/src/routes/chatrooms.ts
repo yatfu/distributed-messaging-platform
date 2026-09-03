@@ -1,6 +1,7 @@
 import express from "express";
 import crypto from "crypto";
 import {pool} from '../db';
+import { nextTick } from "process";
 const router = express.Router();
 
 router.get("/test", (req, res) => {
@@ -8,7 +9,7 @@ router.get("/test", (req, res) => {
 });
 
 // given name for chatroom, create a chatroom: generate url, send sql query to database
-router.post("/create", async (req, res) => {
+router.post("/create", async (req, res, next) => {
   let name = req.body.name;
   if (typeof name !== "string") {
     name = "Chatroom";
@@ -18,9 +19,9 @@ router.post("/create", async (req, res) => {
     return res.status(201).json(result.rows[0]);
   }
 
-  catch {
-    res.status(500).json({error: "Internal server error, failed to create chatroom"});
+  catch (err) {
+    next(err);
   }
 });
 
-module.exports = router;
+export default router;

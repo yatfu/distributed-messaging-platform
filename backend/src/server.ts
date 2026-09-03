@@ -1,8 +1,11 @@
-import express, { response } from "express";
+import express from "express";
 import cors from "cors";
 import "dotenv/config";
+
 import { pool } from "./db.js";
+import chatroomsRouter from "./routes/chatrooms.js";
 import type { Request, Response, NextFunction } from "express"; // for error handling middlewrae
+
 
 const app = express();
 const port = Number(process.env.PORT) || 3000;
@@ -23,11 +26,22 @@ app.get("/api/health", async (_req, res) => {
   }
 });
 
-const chatroomsRouter = require("./routes/chatrooms.js");
-app.use("/chatrooms", chatroomsRouter);
+app.use("/api/chatrooms", chatroomsRouter);
+app.use(errorHandler);
 
 app.listen(port, () => {
   console.log(`Backend running at http://localhost:${port}`);
 });
 
 // Error handler
+function errorHandler(
+  err: Error,
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  console.error(err);
+  return res.status(500).json({
+    error: "Internal server error"
+  });
+}
