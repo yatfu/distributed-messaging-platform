@@ -26,4 +26,17 @@ router.post("/create", async (req, res) => {
   return res.status(201).json(result.rows[0]);
 });
 
+// delete chatroom given chatroom_id, not typically used within app but for admin purposes
+router.delete("/:chatroomId", async (req, res ) => {
+  const { chatroomId } = req.params;
+  const result = await pool.query(
+    "DELETE FROM chatrooms WHERE id = $1", [chatroomId]
+  );
+//check if chatroom was deleted
+  if (result.rowCount === 0) {
+    return res.status(404).json({ error: "Chatroom not found" });
+  }
+  res.status(204).send();
+});
+
 export default router;
