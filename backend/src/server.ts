@@ -1,9 +1,9 @@
 import express from "express";
 import cors from "cors";
 import "dotenv/config";
-
 import { pool } from "./db.js";
 import chatroomsRouter from "./routes/chatrooms.js";
+import messagesRouter from "./routes/messages.js";
 import type { Request, Response, NextFunction } from "express"; // for error handling middlewrae
 
 
@@ -26,7 +26,9 @@ app.get("/api/health", async (_req, res) => {
   }
 });
 
+// routes and tools
 app.use("/api/chatrooms", chatroomsRouter);
+app.use("/api/messages", messagesRouter);
 app.use(errorHandler);
 
 app.listen(port, () => {
@@ -41,7 +43,7 @@ function errorHandler(
   next: NextFunction
 ) {
   console.error(err);
-  return res.status(500).json({
+  res.status(500).json({
     error: "Internal server error"
   });
 }
