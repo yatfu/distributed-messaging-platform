@@ -10,3 +10,6 @@ CREATE TABLE messages (
         REFERENCES chatrooms(id)
         ON DELETE CASCADE
 );
+
+CREATE INDEX index_messages_chatroom_created
+ON messages (chatroom_id, created_at);
