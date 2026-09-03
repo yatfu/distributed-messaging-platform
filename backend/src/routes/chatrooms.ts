@@ -11,11 +11,17 @@ router.get("/test", (req, res) => {
 // given name for chatroom, create a chatroom: generate url, send sql query to database
 router.post("/create", async (req, res) => {
   let name = req.body.name;
-
+  //validate
   if (typeof name !== "string") {
     name = "Chatroom";
   }
-  const result = await pool.query("INSERT INTO chatrooms (name) VALUES ($1) RETURNING *", [name]);
+  console.log("Passed Validation, generating data for chatroom creation")
+  const roomId = crypto.randomUUID();
+  const creatorId = crypto.randomUUID();
+  //send db query (express 5 handles errors with our global error handler)
+  const result = await pool.query(
+    "INSERT INTO chatrooms (id, admin_id, name, expires_at) VALUES ($1, $2, $3, NOW() + INTERVAL '1 day') RETURNING *", 
+  [roomId, creatorId, name]);
 
   return res.status(201).json(result.rows[0]);
 });

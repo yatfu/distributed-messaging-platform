@@ -1,7 +1,7 @@
 CREATE TABLE chatrooms (
     id UUID PRIMARY KEY,
     admin_id UUID NOT NULL,
-    name VARCHAR(255) NOT NULL,
+    name VARCHAR(50) NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    expires_at TIMESTAMPTZ NOT NULL
+    expires_at TIMESTAMPTZ NOT NULL DEFAULT NOW() + INTERVAL '1 day'
 );
