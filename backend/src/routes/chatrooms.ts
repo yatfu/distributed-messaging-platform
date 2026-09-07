@@ -3,6 +3,8 @@ import crypto from "crypto";
 import {pool} from '../db';
 import { nextTick } from "process";
 const router = express.Router();
+import validate from '../lib/validate';
+import { ApiError } from '../lib/Errors';
 
 router.get("/test", (req, res) => {
   res.json({ nessage: "test" });
@@ -26,15 +28,38 @@ router.post("/create", async (req, res) => {
   return res.status(201).json(result.rows[0]);
 });
 
-// delete chatroom given chatroom_id, not typically used within app but for admin purposes
-router.delete("/:chatroomId", async (req, res ) => {
+// get messages from chatroom
+router.get("/:chatroomId/messages", async (req, res) => {
   const { chatroomId } = req.params;
+  // validate
+  validate(chatroomId)
+  // query messages
   const result = await pool.query(
-    "DELETE FROM chatrooms WHERE id = $1", [chatroomId]
+    `SELECT * FROM messages
+    WHERE chatroom_id = $1`,
+      [chatroomId])
+  //return result as json. SQL data ---(postgresql conversion)--> javascript object ----(json function)---> response
+  return res.status(200).json({
+    messages: result.rows
+  })
+});
+
+
+// delete chatroom given chatroom_id and userId
+router.delete("/:chatroomId/users/:userId", async (req, res ) => {
+  const { chatroomId, userId } = req.params;
+  //validate
+  validate(chatroomId, userId);
+  // query deletion
+  const result = await pool.query(
+    `DELETE FROM chatrooms 
+    WHERE id = $1
+    AND admin_id = $2`, 
+    [chatroomId, userId]
   );
 //check if chatroom was deleted
   if (result.rowCount === 0) {
-    return res.status(404).json({ error: "Chatroom not found" });
+    throw new ApiError(404, "Chatroom not found or access denied")
   }
   res.status(204).send();
 });
