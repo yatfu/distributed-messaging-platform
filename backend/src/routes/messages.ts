@@ -32,6 +32,6 @@ router.delete("/:messageId", async (req, res) => {
     return res.status(404).json({error: "Message not found"});
   }
   res.status(204).send();
-})
+});
 
 export default router;

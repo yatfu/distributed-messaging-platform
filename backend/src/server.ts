@@ -5,6 +5,7 @@ import { pool } from "./db.js";
 import chatroomsRouter from "./routes/chatrooms.js";
 import messagesRouter from "./routes/messages.js";
 import type { Request, Response, NextFunction } from "express"; // for error handling middlewrae
+import { ApiError } from "./lib/Errors.js";
 
 
 const app = express();
@@ -35,15 +36,21 @@ app.listen(port, () => {
   console.log(`Backend running at http://localhost:${port}`);
 });
 
-// Error handler
+// Error handler, returns
 function errorHandler(
   err: Error,
   req: Request,
   res: Response,
   next: NextFunction
 ) {
+  if (err instanceof ApiError) {
+    return res.status(err.statusCode).json({
+      error: err.message
+    });
+    
+  }
   console.error(err);
-  res.status(500).json({
+  return res.status(500).json({
     error: "Internal server error"
   });
 }
