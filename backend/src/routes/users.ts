@@ -53,7 +53,7 @@ router.post("/create", async (req, res) => {
 
 router.get('/me', async (req, res) => {
   const token = req.cookies.sessionToken;
-  // validate token
+  // validate session token
   if (typeof token !== "string" || token.trim() === "") {
     throw new ApiError(401, "Authentication required");
   }
