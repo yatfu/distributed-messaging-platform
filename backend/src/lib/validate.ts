@@ -1,4 +1,5 @@
 import { ApiError } from "./Errors";
+import { validate as isUuid } from "uuid";
 
 //chatroom validation: accepts either chatroom or both chatroom and user id
 export function validateChatroom(chatroomId: unknown, userId: unknown) {
@@ -8,6 +9,19 @@ export function validateChatroom(chatroomId: unknown, userId: unknown) {
     chatroomId: validChatroomId,
     userId: validUserId,
   };
+}
+
+export function validateUuid(
+  value: unknown,
+  field: string,
+): string {
+  const validString = validateString(value, field);
+
+  if (!isUuid(validString)) {
+    throw new ApiError(400, `${field} must be a valid UUID`);
+  }
+
+  return validString;
 }
 
 export function validateString(value: unknown, field: string): string {
