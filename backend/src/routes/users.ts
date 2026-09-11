@@ -10,10 +10,12 @@ const router = express.Router();
 router.post("/create", async (req, res) => {
   // validate user id
   const name = req.body?.name;
+  const nameLength = 20;
+  const maxCookieAge = 24 * 60 * 60 * 1000 // max age of cookie in miliseconds
   if (
     typeof name !== "string" ||
     name.trim() === "" ||
-    name.trim().length > 20
+    name.trim().length > nameLength
   ) {
     throw new ApiError(400, "Display name must contain 1–20 characters");
   }
@@ -40,7 +42,7 @@ router.post("/create", async (req, res) => {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
-    maxAge: 24 * 60 * 60 * 1000,
+    maxAge: maxCookieAge,
     path: "/",
   });
   return res.status(201).json({
