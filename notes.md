@@ -44,3 +44,8 @@ Server hashes incoming token
           ↓
 Compare hash with token_hash in PostgreSQL
 
+200: succeeded, 201: created: 202: accepted. 204: no content
+
+  const tokenHash = crypto.createHash("sha256") // creates the hashing operation, not the hash
+    .update(token) // provides session token as input
+    .digest("hex"); // converts hash into format allowed by text variable in users SQL table

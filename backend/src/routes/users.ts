@@ -5,8 +5,9 @@ import { ApiError } from "../lib/Errors";
 
 const router = express.Router();
 
-// create user
+//GET /api/users/me
 
+// create user: REQUIRES COOKIES ENABLED
 router.post("/create", async (req, res) => {
   // validate user id
   const name = req.body?.name;
@@ -48,4 +49,26 @@ router.post("/create", async (req, res) => {
   return res.status(201).json({
     user: result.rows[0],
   });
+});
+
+router.get('/me', async (req, res) => {
+  const token = req.cookies.sessionToken;
+  // validate token
+  if (typeof token !== "string" || token.trim() === "") {
+    throw new ApiError(401, "Authentication required");
+  }
+
+  const tokenHash = crypto.createHash("sha256") // creates the hashing operation, not the hash
+    .update(token) // provides session token as input
+    .digest("hex"); // converts hash into format allowed by text variable in users SQL table
+
+  const result = await pool.query( `
+    SELECT id, name, created_at, expires_at
+    FROM users
+    WHERE token_hash = $1
+      AND expires at > NOW()
+  `, [tokenHash]);
+
+  const user = result.rows[0];
+  return res.status(200).json({ user }); // 200: succeeded, 201: created
 });
