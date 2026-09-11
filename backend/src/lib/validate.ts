@@ -1,7 +1,7 @@
 import { ApiError } from "./Errors";
 
-//validation: accepts either chatroom or both chatroom and user id
-export default function validate(chatroomId: unknown, userId?: unknown) {
+//chatroom validation: accepts either chatroom or both chatroom and user id
+export function validateChatroom(chatroomId: unknown, userId?: unknown) {
   if (
     typeof chatroomId !== "string" ||
     chatroomId.trim() === ""
@@ -14,5 +14,9 @@ export default function validate(chatroomId: unknown, userId?: unknown) {
     ) {
       throw new ApiError(400, "Authentication failed: invalid userId");
   }
+}
 
+//user validation for editing messages
+export function validateUser(creatorId: unknown, editorId: unknown) {
+  return true;
 }
