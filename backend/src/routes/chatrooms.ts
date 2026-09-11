@@ -5,6 +5,7 @@ import { nextTick } from "process";
 const router = express.Router();
 import { validateChatroom, validateString } from "../lib/validate";
 import { ApiError } from "../lib/Errors";
+import {getUserFromToken} from "../lib/auth";
 
 router.get("/test", (req, res) => {
   res.json({ nessage: "test" });
@@ -14,25 +15,7 @@ router.get("/test", (req, res) => {
 router.post("/create", async (req, res) => {
   //validate user via sessionToken cookie
   const token = req.cookies.sessionToken;
-  if (typeof token !== "string" || token.trim() === "") {
-    throw new ApiError(401, "Authentication required");
-  }
-  const tokenHash = crypto
-  .createHash("sha256")
-  .update(token)
-  .digest("hex");
-
-  const token_result = await pool.query(`
-    SELECT id
-    FROM users
-    WHERE token_hash = $1
-      AND expires_at > NOW()
-  `, [tokenHash]);
-  const user = token_result.rows[0];
-
-  if (!user) {
-    throw new ApiError(401, "Invalid or expired session")
-  }
+  const validUser = await getUserFromToken(token);
 
   //validate name
   let validName;
@@ -45,7 +28,7 @@ router.post("/create", async (req, res) => {
 
 
   console.log("Passed Validation, generating data for chatroom creation");
-  const validUserId = user.id;
+  const validUserId = validUser.id;
   const roomId = crypto.randomUUID();
 
   //send db query (express 5 handles errors with our global error handler)
