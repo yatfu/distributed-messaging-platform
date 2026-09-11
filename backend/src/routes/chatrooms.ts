@@ -3,7 +3,7 @@ import crypto from "node:crypto";
 import { pool } from "../db";
 import { nextTick } from "process";
 const router = express.Router();
-import { validateChatroom } from "../lib/validate";
+import { validateChatroom, validateString } from "../lib/validate";
 import { ApiError } from "../lib/Errors";
 
 router.get("/test", (req, res) => {
@@ -12,23 +12,48 @@ router.get("/test", (req, res) => {
 
 // create chatroom given name and user id
 router.post("/create", async (req, res) => {
-  //validate
-  let name;
-  if (typeof req.body?.name !== "string") {
-    name = "Chatroom";
+  //validate user via sessionToken cookie
+  const token = req.cookies.sessionToken;
+  if (typeof token !== "string" || token.trim() === "") {
+    throw new ApiError(401, "Authentication required");
+  }
+  const tokenHash = crypto
+  .createHash("sha256")
+  .update(token)
+  .digest("hex");
+
+  const token_result = await pool.query(`
+    SELECT id
+    FROM users
+    WHERE token_hash = $1
+      AND expires_at > NOW()
+  `, [tokenHash]);
+  const user = token_result.rows[0];
+
+  if (!user) {
+    throw new ApiError(401, "Invalid or expired session")
+  }
+
+  //validate name
+  let validName;
+  if (req.body?.name === undefined) {
+    validName = "Chatroom";
   }
   else {
-    name = req.body.name;
-  } 
+    validName = validateString(req.body.name, "name");
+  }
+
+
   console.log("Passed Validation, generating data for chatroom creation");
+  const validUserId = user.id;
   const roomId = crypto.randomUUID();
-  const creatorId = crypto.randomUUID();
+
   //send db query (express 5 handles errors with our global error handler)
   const result = await pool.query(
     `INSERT INTO chatrooms (id, admin_id, name, expires_at) 
     VALUES ($1, $2, $3, NOW() + INTERVAL '1 day') 
     RETURNING id, name, created_at, expires_at`,
-    [roomId, creatorId, name]
+    [roomId, validUserId, validName]
   );
 
   return res.status(201).json(result.rows[0]);
@@ -38,7 +63,7 @@ router.post("/create", async (req, res) => {
 router.get("/:chatroomId/messages", async (req, res) => {
   const { chatroomId } = req.params;
   // validate
-  validateChatroom(chatroomId);
+  validateString(chatroomId, "chatroom"); // field required but no required value
   // query messages
   const result = await pool.query(
     `SELECT * FROM messages
