@@ -5,7 +5,7 @@ import { nextTick } from "process";
 const router = express.Router();
 import { validateChatroom, validateString } from "../lib/validate";
 import { ApiError } from "../lib/Errors";
-import {getUserFromToken} from "../lib/auth";
+import { getUserFromToken } from "../lib/auth";
 
 router.get("/test", (req, res) => {
   res.json({ nessage: "test" });
@@ -15,20 +15,22 @@ router.get("/test", (req, res) => {
 router.post("/create", async (req, res) => {
   //validate user via sessionToken cookie
   const token = req.cookies.sessionToken;
-  const validUser = await getUserFromToken(token);
+  const user = await getUserFromToken(token);
+  //validate user after getting from token
+  if (!user) {
+    return res.status(401).json({ error: "Invalid session" });
+  }
+  const validUserId = user.id;
 
   //validate name
   let validName;
   if (req.body?.name === undefined) {
     validName = "Chatroom";
-  }
-  else {
+  } else {
     validName = validateString(req.body.name, "name");
   }
 
-
   console.log("Passed Validation, generating data for chatroom creation");
-  const validUserId = validUser.id;
   const roomId = crypto.randomUUID();
 
   //send db query (express 5 handles errors with our global error handler)
@@ -46,7 +48,7 @@ router.post("/create", async (req, res) => {
 router.get("/:chatroomId/messages", async (req, res) => {
   const { chatroomId } = req.params;
   // validate
-  validateString(chatroomId, "chatroom"); // field required but no required value
+  validateString(chatroomId, "chatroomId"); // field required but no required value
   // query messages
   const result = await pool.query(
     `SELECT * FROM messages
