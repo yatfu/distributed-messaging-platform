@@ -1,3 +1,18 @@
+PLAN
+finish message api: 
+MVP user story: 
+      as a user i want to create chatrooms so i can create a place to privately communicate with other people.
+      as a user i want to delete a chatroom, and all messages with it, when i want so i can confidently keep my conversations private.
+      as a user i want to join a chatroom so that i can view messages within the chatroom.
+      as a user i want to create messages within a chatroom so i can communicate with other room members.
+      as a user i want to delete messages so i can undo messages i regret sending.
+      as a user i want to edit messages i created so i can fix errors and dont have to delete/resend messages to do so.
+
+user stories
+      as a chatroom creator i want to see who accessed my chatroom and its messages so I know who accessed it, not for identification but for verification
+      as a user i want to 
+
+NOTES
 database schema: no users, instead a temp uuid stored client side
 chatroom:
   id: primary key
