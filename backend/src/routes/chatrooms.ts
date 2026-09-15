@@ -1,25 +1,16 @@
 import express from "express";
 import crypto from "node:crypto";
-import { pool } from "../db";
-import { nextTick } from "process";
+import { pool } from "../db.js";
 const router = express.Router();
-import { validateChatroom, validateString } from "../lib/validate";
-import { ApiError } from "../lib/Errors";
-import { getUserFromToken } from "../lib/auth";
-
-router.get("/test", (req, res) => {
-  res.json({ nessage: "test" });
-});
+import { validateString, validateUuid } from "../lib/validate.js";
+import { ApiError } from "../lib/Errors.js";
+import { getUserFromToken } from "../lib/auth.js";
 
 // create chatroom given name and user id
-router.post("/create", async (req, res) => {
+router.post("/", async (req, res) => {
   //validate user via sessionToken cookie
   const token = req.cookies.sessionToken;
   const user = await getUserFromToken(token);
-  //validate user after getting from token
-  if (!user) {
-    return res.status(401).json({ error: "Invalid session" });
-  }
   const validUserId = user.id;
 
   //validate name
@@ -48,12 +39,25 @@ router.post("/create", async (req, res) => {
 router.get("/:chatroomId/messages", async (req, res) => {
   const { chatroomId } = req.params;
   // validate
-  validateString(chatroomId, "chatroomId"); // field required but no required value
+  const validChatroomId = validateUuid(chatroomId, "chatroomId");
+
+  const roomResult = await pool.query(
+    `SELECT id
+     FROM chatrooms
+     WHERE id = $1
+       AND expires_at > NOW()`,
+    [validChatroomId]
+  );
+
+  if (roomResult.rowCount === 0) {
+    throw new ApiError(404, "Chatroom not found or expired");
+  }
+
   // query messages
   const result = await pool.query(
     `SELECT * FROM messages
     WHERE chatroom_id = $1`,
-    [chatroomId]
+    [validChatroomId]
   );
   //return result as json. SQL data ---(postgresql conversion)--> javascript object ----(json function)---> response
   return res.status(200).json({
@@ -61,29 +65,25 @@ router.get("/:chatroomId/messages", async (req, res) => {
   });
 });
 
-// delete chatroom given chatroom_id and userId
-router.delete("/:chatroomId/users/:userId", async (req, res) => {
-  const { chatroomId, userId } = req.params;
+// delete chatroom given chatroom_id and authenticated user
+router.delete("/:chatroomId", async (req, res) => {
+  const { chatroomId } = req.params;
   //validate
-  validateChatroom(chatroomId, userId);
+  const validChatroomId = validateUuid(chatroomId, "chatroomId");
+  const user = await getUserFromToken(req.cookies.sessionToken);
+
   // query deletion
   const result = await pool.query(
     `DELETE FROM chatrooms 
     WHERE id = $1
     AND admin_id = $2`,
-    [chatroomId, userId]
+    [validChatroomId, user.id]
   );
   //check if chatroom was deleted
   if (result.rowCount === 0) {
     throw new ApiError(404, "Chatroom not found or access denied");
   }
   return res.status(204).send();
-});
-
-// dev: get all chatrooms
-router.get("/", async (req, res) => {
-  const result = await pool.query(`SELECT * from chatrooms`);
-  res.json(result.rows);
 });
 
 export default router;
