@@ -5,6 +5,7 @@ import "dotenv/config";
 import { pool } from "./db.js";
 import chatroomsRouter from "./routes/chatrooms.js";
 import messagesRouter from "./routes/messages.js";
+import usersRouter from "./routes/users.js";
 import type { Request, Response, NextFunction } from "express"; // for error handling middlewrae
 import { ApiError } from "./lib/Errors.js";
 
@@ -33,6 +34,7 @@ app.get("/api/health", async (_req, res) => {
 // routes and tools
 app.use("/api/chatrooms", chatroomsRouter);
 app.use("/api/messages", messagesRouter);
+app.use("/api/users", usersRouter);
 app.use(errorHandler);
 
 app.listen(port, () => {
