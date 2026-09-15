@@ -1,7 +1,8 @@
-import { pool } from "../db";
+import { pool } from "../db.js";
 import express from "express";
 import crypto from "node:crypto";
-import { ApiError } from "../lib/Errors";
+import { ApiError } from "../lib/Errors.js";
+import { getUserFromToken } from "../lib/auth.js";
 
 const router = express.Router();
 
@@ -52,23 +53,8 @@ router.post("/create", async (req, res) => {
 });
 
 router.get('/me', async (req, res) => {
-  const token = req.cookies.sessionToken;
-  // validate session token
-  if (typeof token !== "string" || token.trim() === "") {
-    throw new ApiError(401, "Authentication required");
-  }
-
-  const tokenHash = crypto.createHash("sha256") // creates the hashing operation, not the hash
-    .update(token) // provides session token as input
-    .digest("hex"); // converts hash into format allowed by text variable in users SQL table
-
-  const result = await pool.query( `
-    SELECT id, name, created_at, expires_at
-    FROM users
-    WHERE token_hash = $1
-      AND expires at > NOW()
-  `, [tokenHash]);
-
-  const user = result.rows[0];
+  const user = await getUserFromToken(req.cookies.sessionToken);
   return res.status(200).json({ user }); // 200: succeeded, 201: created
 });
+
+export default router;
