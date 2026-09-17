@@ -2,6 +2,7 @@ import crypto from "node:crypto";
 import { pool } from "../db.js";
 import { ApiError } from "./Errors.js";
 
+// this function is tested with api users/me test
 export async function getUserFromToken(token: unknown) {
   if (typeof token !== "string" || token.trim() === "") {
     throw new ApiError(401, "Authentication required");

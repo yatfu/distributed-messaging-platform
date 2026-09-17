@@ -1,61 +1,8 @@
-import express from "express";
-import cors from "cors";
-import cookieParser from "cookie-parser";
 import "dotenv/config";
-import { pool } from "./db.js";
-import chatroomsRouter from "./routes/chatrooms.js";
-import messagesRouter from "./routes/messages.js";
-import usersRouter from "./routes/users.js";
-import type { Request, Response, NextFunction } from "express"; // for error handling middlewrae
-import { ApiError } from "./lib/Errors.js";
+import app from "./app.js";
 
-
-const app = express();
 const port = Number(process.env.PORT) || 3000;
-
-app.use(
-  cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:3000",
-    credentials: true,
-  }),
-);
-app.use(express.json()); // parses incoming json
-app.use(cookieParser());
-
-app.get("/api/health", async (_req, res) => {
-  try {
-    await pool.query("SELECT 1");
-    res.json({ status: "ok" });
-  } catch (error) {
-    res.status(500).json({ status: "error", database: "disconnected" });
-  }
-});
-
-// routes and tools
-app.use("/api/chatrooms", chatroomsRouter);
-app.use("/api/messages", messagesRouter);
-app.use("/api/users", usersRouter);
-app.use(errorHandler);
 
 app.listen(port, () => {
   console.log(`Backend running at http://localhost:${port}`);
 });
-
-// Error handler, returns
-function errorHandler(
-  err: Error,
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
-  if (err instanceof ApiError) {
-    return res.status(err.statusCode).json({
-      error: err.message
-    });
-    
-  }
-  console.error(err);
-  return res.status(500).json({
-    error: "Internal server error"
-  });
-}
