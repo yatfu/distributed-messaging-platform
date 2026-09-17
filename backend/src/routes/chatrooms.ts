@@ -5,6 +5,14 @@ const router = express.Router();
 import { validateString, validateUuid } from "../lib/validate.js";
 import { ApiError } from "../lib/Errors.js";
 import { getUserFromToken } from "../lib/auth.js";
+/** CHATROOMS ENDPOINTS
+ *
+ * create: creates chatroom. needs user id to make admin
+ * delete: deletes chatroom, requires admin user id to perform
+ * get messages: given chatroom id, queries messages table for
+ *
+ *
+ */
 
 // create chatroom given name and user id
 router.post("/", async (req, res) => {
@@ -35,6 +43,28 @@ router.post("/", async (req, res) => {
   return res.status(201).json(result.rows[0]);
 });
 
+// get chatroom information
+router.get("/:chatroomId", async (req, res) => {
+  const { chatroomId } = req.params;
+  //validate
+  const validChatroomId = validateUuid(chatroomId, "chatroomId");
+  //get chatroom
+  const result = await pool.query(
+    `
+    SELECT name, created_at, expires_at
+    FROM chatrooms
+    WHERE id = $1
+    AND expires_at > NOW();
+  `,
+    [validChatroomId]
+  );
+  // throw if empty
+  if (result.rows.length === 0) {
+    throw new ApiError(404, "Chatroom not found or expired");
+  }
+  return res.status(200).json({chatroom: result.rows[0]});
+});
+
 // get messages from chatroom
 router.get("/:chatroomId/messages", async (req, res) => {
   const { chatroomId } = req.params;
@@ -48,7 +78,7 @@ router.get("/:chatroomId/messages", async (req, res) => {
        AND expires_at > NOW()`,
     [validChatroomId]
   );
-
+  // throw if empty
   if (roomResult.rowCount === 0) {
     throw new ApiError(404, "Chatroom not found or expired");
   }
