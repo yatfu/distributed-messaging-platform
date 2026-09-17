@@ -4,4 +4,4 @@ CREATE TABLE users (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   token_hash TEXT NOT NULL UNIQUE,
   expires_at TIMESTAMPTZ NOT NULL DEFAULT NOW() + INTERVAL '1 day'
-)
+);
