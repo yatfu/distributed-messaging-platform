@@ -24,7 +24,7 @@ app.get("/api/health", async (_req, res) => {
   try {
     await pool.query("SELECT 1");
     return res.json({ status: "ok" });
-  } catch (error) {
+  } catch {
     return res.status(500).json({
       status: "error",
       database: "disconnected",
@@ -43,6 +43,8 @@ function errorHandler(
   res: Response,
   _next: NextFunction,
 ) {
+  void _next;
+
   if (err instanceof ApiError) {
     return res.status(err.statusCode).json({
       error: err.message,

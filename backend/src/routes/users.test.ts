@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import request from "supertest";
-import crypto from "node:crypto";
 import app from "../app.js";
 import { pool } from "../db.js";
 

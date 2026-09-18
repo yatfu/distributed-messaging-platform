@@ -15,7 +15,7 @@ beforeEach(async () => {
 async function createTestRoom() {
   const agent = request.agent(testApp);
 
-  const userResponse = await agent
+  await agent
     .post("/api/users/create")
     .send({ name: "Test User" })
     .expect(201);
