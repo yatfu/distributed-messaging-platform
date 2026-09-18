@@ -59,6 +59,13 @@ describe("POST /api/messages", () => {
 });
 
 describe("GET /api/chatrooms/:chatroomId/messages", () => {
+  it("rejects missing chatroom when retieving messages", async () => {
+    const missingRoomId = crypto.randomUUID();
+    await request(testApp)
+      .get(`/api/chatrooms/${missingRoomId}/messages`)
+      .expect(404);
+  });
+
   it("retrieves chatroom messages", async () => {
     const { agent, room } = await createTestRoom();
 
@@ -116,4 +123,11 @@ describe("DELETE /api/messages/:messageId", () => {
       .delete(`/api/messages/${created.body.message.id}`)
       .expect(404);
   });
+
+  it("rejects deletion without authentication from session cookie", async () => {
+    const messageId = crypto.randomUUID();
+    await request(testApp)
+    .delete(`/api/messages/${messageId}`)
+    .expect(401);
+  })
 });
