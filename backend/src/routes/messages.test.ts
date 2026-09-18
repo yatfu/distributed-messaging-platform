@@ -11,7 +11,7 @@ beforeEach(async () => {
 });
 
 //create room and user to test endpoints
-async function setupRoom() {
+async function createTestRoom() {
   const agent = request.agent(testApp);
 
   const userResponse = await agent
@@ -29,9 +29,9 @@ async function setupRoom() {
     room: roomResponse.body,
   };
 }
-describe("Message endpoints", () => {
+describe("POST /api/messages", () => {
   it("creates a message", async () => {
-    const { agent, room } = await setupRoom();
+    const { agent, room } = await createTestRoom();
 
     const response = await agent
       .post("/api/messages")
@@ -46,7 +46,7 @@ describe("Message endpoints", () => {
   });
 
   it("rejects unauthenticated message creation", async () => {
-    const { room } = await setupRoom();
+    const { room } = await createTestRoom();
 
     await request(testApp)
       .post("/api/messages")
@@ -56,9 +56,11 @@ describe("Message endpoints", () => {
       })
       .expect(401);
   });
+});
 
+describe("GET /api/chatrooms/:chatroomId/messages", () => {
   it("retrieves chatroom messages", async () => {
-    const { agent, room } = await setupRoom();
+    const { agent, room } = await createTestRoom();
 
     await agent
       .post("/api/messages")
@@ -75,9 +77,11 @@ describe("Message endpoints", () => {
     expect(response.body.messages).toHaveLength(1);
     expect(response.body.messages[0].content).toBe("Hello");
   });
+});
 
+describe("DELETE /api/messages/:messageId", () => {
   it("allows the sender to delete a message", async () => {
-    const { agent, room } = await setupRoom();
+    const { agent, room } = await createTestRoom();
 
     const created = await agent
       .post("/api/messages")
@@ -91,7 +95,7 @@ describe("Message endpoints", () => {
   });
 
   it("prevents another user from deleting a message", async () => {
-    const { agent, room } = await setupRoom();
+    const { agent, room } = await createTestRoom();
 
     const created = await agent
       .post("/api/messages")

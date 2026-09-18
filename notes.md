@@ -70,3 +70,56 @@ FROM chatrooms
 WHERE id = $2
       AND expires_at > NOW();
 
+
+ENDPOINT Checklist
+POST   /api/users/create
+GET    /api/users/me
+POST   /api/users/logout
+
+POST   /api/chatrooms
+GET    /api/chatrooms/:chatroomId
+DELETE /api/chatrooms/:chatroomId
+
+POST   /api/messages
+GET    /api/chatrooms/:chatroomId/messages
+DELETE /api/messages/:messageId
+
+GET    /api/health
+
+USING VITEST for automated testing
+Unit tests
+- validateString() trims valid strings.
+- Rejects empty or whitespace-only strings.
+- Rejects non-string values.
+- validateUuid() accepts valid UUIDs.
+- Rejects invalid UUIDs.
+User endpoints
+- Creating a user returns 201.
+- Creating a user sets the sessionToken cookie.
+- Rejects missing, empty, or overly long names.
+- /users/me returns the authenticated user.
+- /users/me returns 401 without a cookie.
+- Rejects an invalid or expired token.
+Chatroom endpoints
+- Authenticated user can create a room.
+- Creating a room without a name uses "Chatroom".
+- Unauthenticated user cannot create a room.
+- Valid room can be retrieved.
+- Missing, invalid, or expired room is rejected.
+- Owner can delete their room.
+- Another user cannot delete the room.
+Message endpoints
+- Authenticated user can create a message in an active room.
+- Rejects missing or empty content.
+- Rejects invalid chatroom UUID.
+- Rejects missing or expired chatroom.
+- Unauthenticated user cannot create a message.
+- Messages can be retrieved from an active room.
+- Sender can delete their message.
+- Another user cannot delete the message.
+- Invalid or missing message ID is rejected.
+Error handling
+- Invalid input returns 400.
+- Missing or invalid authentication returns 401.
+- Missing resources return 404.
+- Unexpected database errors return 500 without exposing internal details.
