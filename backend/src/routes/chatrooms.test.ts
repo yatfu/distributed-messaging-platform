@@ -27,21 +27,21 @@ async function createTestRoom() {
 }
 
 describe("POST /api/chatrooms", () => {
-  it("rejects unauthenticated room creation", async () => {
+  it("rejects creating a chatroom without authentication", async () => {
     await request(testApp)
       .post("/api/chatrooms")
       .send({ name: "Test Room" })
       .expect(401);
   });
 
-  it("creates a chatroom", async () => {
+  it("creates a chatroom for an authenticated user", async () => {
     const { room } = await createTestRoom();
 
     expect(room.name).toBe("Test Room");
     expect(room.id).toBeDefined();
   });
 
-  it("gives room without given name a default name", async () => {
+  it("uses a default name when creating a chatroom without a name", async () => {
     const agent = request.agent(testApp);
     await agent
       .post("/api/users/create")
@@ -55,7 +55,7 @@ describe("POST /api/chatrooms", () => {
 });
 
 describe("GET /api/chatrooms/:chatroomId", () => {
-  it("retrieves a chatroom", async () => {
+  it("returns an existing chatroom", async () => {
     const { room } = await createTestRoom();
 
     const response = await request(testApp)
@@ -65,11 +65,11 @@ describe("GET /api/chatrooms/:chatroomId", () => {
     expect(response.body.chatroom.name).toBe("Test Room");
   });
 
-  it("rejects an invalid chatroom UUID", async () => {
+  it("rejects getting a chatroom with an invalid UUID", async () => {
     await request(testApp).get("/api/chatrooms/not-a-uuid").expect(400);
   });
 
-  it("rejects an expired chatroom", async () => {
+  it("rejects getting an expired chatroom", async () => {
     const { room } = await createTestRoom();
 
     await pool.query(
@@ -83,7 +83,7 @@ describe("GET /api/chatrooms/:chatroomId", () => {
       .get(`/api/chatrooms/${room.id}`)
       .expect(404);
   });
-  it("rejects chatroom not found", async () => {
+  it("rejects getting a nonexistent chatroom", async () => {
     const roomId = crypto.randomUUID();
     await request(testApp)
       .get(`/api/chatrooms/${roomId}`)
@@ -92,13 +92,13 @@ describe("GET /api/chatrooms/:chatroomId", () => {
 });
 
 describe("DELETE /api/chatrooms/:chatroomId", () => {
-  it("allows the owner to delete the room", async () => {
+  it("allows the owner to delete a chatroom", async () => {
     const { agent, room } = await createTestRoom();
 
     await agent.delete(`/api/chatrooms/${room.id}`).expect(204);
   });
 
-  it("prevents another user from deleting the room", async () => {
+  it("rejects deleting a chatroom owned by another user", async () => {
     const { room } = await createTestRoom();
 
     const otherUser = request.agent(testApp);
@@ -111,11 +111,11 @@ describe("DELETE /api/chatrooms/:chatroomId", () => {
     await otherUser.delete(`/api/chatrooms/${room.id}`).expect(404);
   });
 
-  it("rejects deletion without authentication from session cookie", async () => {
+  it("rejects deleting a chatroom without authentication", async () => {
     const chatroomId = crypto.randomUUID();
     await request(testApp).delete(`/api/chatrooms/${chatroomId}`).expect(401);
   });
-  it("rejects invalid chatroom UUID", async () => {
+  it("rejects deleting a chatroom with an invalid UUID", async () => {
     const chatroomId = "invalid id";
     await request(testApp).delete(`/api/chatrooms/${chatroomId}`).expect(400);
   })

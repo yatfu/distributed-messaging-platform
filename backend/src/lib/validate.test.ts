@@ -2,25 +2,25 @@ import { describe, expect, it } from "vitest";
 import { validateString, validateUuid } from "./validate.js";
 
 describe("validateString", () => {
-  it("returns a trimmed string", () => {
+  it("returns a trimmed non-empty string", () => {
     expect(validateString(" hello ","message with trailing spaces")).toBe("hello");
   });
 
-  it("rejects an empty string", () => {
+  it("rejects validating an empty string", () => {
     expect(() => validateString("", "empty message")).toThrow();
   });
 
-  it("rejects a non string", () => {
+  it("rejects validating a non-string value", () => {
     expect(() => validateString(67, "non-string message")).toThrow();
   });
 });
 
 describe("validateUuid", () => {
-  it("returns a valid UUID", () => {
+  it("returns a string when it contains a valid UUID", () => {
     const id="550e8400-e29b-41d4-a716-446655440000";
     expect(validateUuid(id, "valid-uuid")).toBe(id);
   });
-  it("rejects an invalid UUID", () => {
+  it("rejects validating an invalid UUID", () => {
     expect(() => validateUuid("67", "invalid-uuid")).toThrow();
   });
 });

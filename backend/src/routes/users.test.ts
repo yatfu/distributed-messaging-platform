@@ -12,20 +12,20 @@ beforeEach(async () => {
 });
 
 describe("GET /api/users/me", () => {
-  it("returns 401 without a cookie", async () => {
+  it("rejects getting the current user without a session cookie", async () => {
     const res = await request(testApp).get("/api/users/me");
     expect(res.status).toBe(401);
     expect(res.body.error).toBe("Authentication required");
   });
 
-  it("returns 401 with invalid cookie", async () => {
+  it("rejects getting the current user with an invalid session cookie", async () => {
     const res = await request(testApp)
       .get("/api/users/me")
       .set("Cookie", "sessionToken=invalid-token");
     expect(res.status).toBe(401);
   });
 
-  it("returns 401 for expired user", async () => {
+  it("rejects getting the current user with an expired session", async () => {
     const agent = request.agent(testApp);
     const created = await agent
       .post("/api/users/create")
@@ -41,7 +41,7 @@ describe("GET /api/users/me", () => {
     await agent.get("/api/users/me").expect(401);
   });
 
-  it("returns authenticated user", async () => {
+  it("returns the current user for a valid session", async () => {
     const agent = request.agent(testApp);
 
     const created = await agent
@@ -61,35 +61,35 @@ describe("GET /api/users/me", () => {
 });
 
 describe("POST /api/users/create", () => {
-  it("rejects a missing name", async () => {
+  it("rejects creating a user without a name", async () => {
     const res = await request(testApp)
       .post("/api/users/create")
       .send({});
     expect(res.status).toBe(400);
   });
 
-  it("rejects non-string name", async () => {
+  it("rejects creating a user with a non-string name", async () => {
     const res = await request(testApp)
       .post("/api/users/create")
       .send({ name: 67 });
     expect(res.status).toBe(400);
   });
 
-  it("rejects empty string name", async () => {
+  it("rejects creating a user with an empty name", async () => {
     const res = await request(testApp)
       .post("/api/users/create")
       .send({ name: " " });
     expect(res.status).toBe(400);
   });
 
-  it("rejects names longer than 20 chars", async () => {
+  it("rejects creating a user with a name longer than 20 characters", async () => {
     const res = await request(testApp)
       .post("/api/users/create")
       .send({ name: "abcdefghijklmnopqrstuvwxyz" });
     expect(res.status).toBe(400);
   });
 
-  it("trims name", async () => {
+  it("trims the name when creating a user", async () => {
     const res = await request(testApp)
       .post("/api/users/create")
       .send({ name: " Test User " });
@@ -97,7 +97,7 @@ describe("POST /api/users/create", () => {
     expect(res.body.user.name).toBe("Test User");
   });
 
-  it("creates a user and sets a cookie", async () => {
+  it("creates a user and sets a session cookie", async () => {
     // only checks if a cookie was set, no additional checks on cookie itself
     const res = await request(testApp)
       .post("/api/users/create")
