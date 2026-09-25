@@ -2,7 +2,7 @@ import { useState } from "react";
 
 const [message, setMessage] = useState("");
 
-const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
+const handleSubmit = () => { // e: React.SyntheticEvent<HTMLFormElement>
   console.log("handlesubmit placeholder");
 };
 
