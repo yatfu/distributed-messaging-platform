@@ -123,3 +123,27 @@ Error handling
 - Missing or invalid authentication returns 401.
 - Missing resources return 404.
 - Unexpected database errors return 500 without exposing internal details.
+
+3. React components
+        ↓
+4. Props
+        ↓
+5. State / useState
+        ↓
+6. Events
+        ↓
+7. Lists + conditional rendering
+        ↓
+8. useEffect
+        ↓
+9. React Router
+        ↓
+10. API requests
+        ↓
+11. Authentication
+        ↓
+12. Global state/context
+        ↓
+13. WebSockets/realtime
+        ↓
+14. Production deployment
