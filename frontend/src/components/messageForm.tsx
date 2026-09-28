@@ -1,12 +1,12 @@
 import { useState } from "react";
 
-const [message, setMessage] = useState("");
-
-const handleSubmit = () => { // e: React.SyntheticEvent<HTMLFormElement>
+const handleSubmit = () => {
+  // e: React.SyntheticEvent<HTMLFormElement>
   console.log("handlesubmit placeholder");
 };
 
-export default function MessageForm() {
+export default function MessageForm({ chatroomId }: { chatroomId: string }) {
+  const [message, setMessage] = useState("");
   return (
     <div>
       <form onSubmit={handleSubmit}>
