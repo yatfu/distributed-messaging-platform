@@ -1,42 +1,14 @@
-import MessageList from "./components/messageList";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Nav from "./components/Nav";
-import MessageForm from "./components/messageForm";
+import ChatroomPage from "./pages/chatroomPage";
 
-const PLACEHOLDER_MESSAGES = [
-  {
-    id: "550e8400-e29b-41d4-a716-446655440001",
-    chatroomId: "550e8400-e29b-41d4-a716-446655440000",
-    senderId: "550e8400-e29b-41d4-a716-446655440010",
-    content: "Hey everyone!",
-    createdAt: "2026-09-25T16:45:00Z",
-    editedAt: null,
-  },
-  {
-    id: "550e8400-e29b-41d4-a716-446655440002",
-    chatroomId: "550e8400-e29b-41d4-a716-446655440000",
-    senderId: "550e8400-e29b-41d4-a716-446655440011",
-    content: "What's up?",
-    createdAt: "2026-09-25T16:46:12Z",
-    editedAt: null,
-  },
-  {
-    id: "550e8400-e29b-41d4-a716-446655440003",
-    chatroomId: "550e8400-e29b-41d4-a716-446655440000",
-    senderId: "550e8400-e29b-41d4-a716-446655440010",
-    content: "Testing the messaging system.",
-    createdAt: "2026-09-25T16:47:31Z",
-    editedAt: "2026-09-25T16:48:05Z",
-  },
-];
-
-function App() {
+export default function App() {
   return (
-    <div>
-      <Nav></Nav>
-      <MessageList messages={PLACEHOLDER_MESSAGES}></MessageList>
-      <MessageForm></MessageForm>
-    </div>
+    <BrowserRouter>
+      <Nav />
+      <Routes>
+        <Route path="/chatrooms/:chatroomId" element={<ChatroomPage />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
-
-export default App;
