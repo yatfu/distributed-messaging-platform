@@ -1,5 +1,4 @@
 import { useParams } from "react-router-dom";
-import Nav from "../components/Nav";
 import MessageForm from "../components/messageForm";
 import MessageList from "../components/messageList";
 

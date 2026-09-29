@@ -12,6 +12,12 @@ user stories
 as a chatroom creator i want to see who accessed my chatroom and its messages so I know who accessed it, not for identification but for verification
 as a user i want to
 
+AFTER MVP:
+add settings for chatrooms
+        optional room passwords
+        optional file sharing
+        optional read only
+        optional join approval
 NOTES
 database schema: no users, instead a temp uuid stored client side
 chatroom:
