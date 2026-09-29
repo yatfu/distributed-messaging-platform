@@ -11,12 +11,12 @@ import type { Chatroom, Message, User } from "./types";
  * handle errors
  */
 
-const API_URL = import.meta.env.API_URL;
+const API_URL = import.meta.env.VITE_API_URL;
 
 export async function createChatroom(name: string): Promise<Chatroom> {
   //validate input
-  if (typeof name !== "string" || name.trim() === "") {
-    throw new Error("Name must be a non-empty string");
+  if (typeof name !== "string" || name.trim() === "" || name.length > 50) {
+    throw new Error("Name must be a non-empty string of character length < 50");
   }
   //call endpoint
   const response = await fetch(`${API_URL}/api/chatrooms`, {

@@ -10,6 +10,8 @@ export default function ChatroomForm() {
   async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
     const chatroom = await createChatroom(name);
+    // TEMPORARY DEVELOPMENT LOG
+    console.log("Chatroom created:", chatroom);
     navigate(`/chatrooms/${chatroom.id}`);
   }
 
