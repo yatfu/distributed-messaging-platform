@@ -8,7 +8,7 @@ const PLACEHOLDER_MESSAGES = [
     chatroomId: "550e8400-e29b-41d4-a716-446655440000",
     senderId: "550e8400-e29b-41d4-a716-446655440010",
     content: "Hey everyone!",
-    createdAt: new Date("2026-09-25T16:45:00Z"),
+    createdAt: "2026-09-25T16:45:00Z",
     editedAt: null,
   },
   {
@@ -16,7 +16,7 @@ const PLACEHOLDER_MESSAGES = [
     chatroomId: "550e8400-e29b-41d4-a716-446655440000",
     senderId: "550e8400-e29b-41d4-a716-446655440011",
     content: "What's up?",
-    createdAt: new Date("2026-09-25T16:46:12Z"),
+    createdAt: "2026-09-25T16:46:12Z",
     editedAt: null,
   },
   {
@@ -24,8 +24,8 @@ const PLACEHOLDER_MESSAGES = [
     chatroomId: "550e8400-e29b-41d4-a716-446655440000",
     senderId: "550e8400-e29b-41d4-a716-446655440010",
     content: "Testing the messaging system.",
-    createdAt: new Date("2026-09-25T16:47:31Z"),
-    editedAt: new Date("2026-09-25T16:48:05Z"),
+    createdAt: "2026-09-25T16:47:31Z",
+    editedAt: "2026-09-25T16:48:05Z",
   },
 ];
 
