@@ -236,7 +236,6 @@ export async function getMessages(chatroomId: string): Promise<Message[]> {
 export async function createMessage(
   chatroomId: string,
   content: string,
-  senderId: string,
 ): Promise<Message> {
   //validate input
   if (typeof chatroomId !== "string" || chatroomId.trim() === "") {
@@ -253,9 +252,8 @@ export async function createMessage(
     },
     credentials: "include",
     body: JSON.stringify({
-      chatroomId: chatroomId,
-      content: content,
-      senderId: senderId,
+      room: chatroomId,
+      message: content,
     }),
   });
   //check status
