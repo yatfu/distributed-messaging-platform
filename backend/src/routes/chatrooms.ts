@@ -51,7 +51,7 @@ router.get("/:chatroomId", async (req, res) => {
   //get chatroom
   const result = await pool.query(
     `
-    SELECT name, created_at, expires_at
+    SELECT id, name, created_at, expires_at
     FROM chatrooms
     WHERE id = $1
     AND expires_at > NOW();
