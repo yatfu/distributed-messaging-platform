@@ -147,3 +147,9 @@ Error handling
 13. WebSockets/realtime
         ↓
 14. Production deployment
+
+define API response types
+create api layer
+build landing page (& room creation page?)
+routing
+connect messageForm
