@@ -101,17 +101,136 @@ export async function createUser(name: string): Promise<User> {
 }
 
 export async function getCurrentUser(): Promise<User> {
-  throw new Error("Not implemented");
+  const response = await fetch(`${API_URL}/api/users/me`, {
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    throw new Error(`Request failed with status ${response.status}`);
+  }
+
+  const data: unknown = await response.json();
+
+  if (
+    typeof data !== "object" ||
+    data === null ||
+    !("user" in data) ||
+    typeof data.user !== "object" ||
+    data.user === null ||
+    !("id" in data.user) ||
+    typeof data.user.id !== "string" ||
+    !("name" in data.user) ||
+    typeof data.user.name !== "string"
+  ) {
+    throw new Error("Invalid user response");
+  }
+
+  return {
+    id: data.user.id,
+    name: data.user.name,
+  };
 }
 
 export async function getChatroom(chatroomId: string): Promise<Chatroom> {
-  void chatroomId;
-  throw new Error("Not implemented");
+  if (typeof chatroomId !== "string" || chatroomId.trim() === "") {
+    throw new Error("chatroomId must be a non-empty string");
+  }
+
+  const response = await fetch(
+    `${API_URL}/api/chatrooms/${encodeURIComponent(chatroomId)}`,
+    {
+      credentials: "include",
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error(`Request failed with status ${response.status}`);
+  }
+
+  const data: unknown = await response.json();
+
+  if (
+    typeof data !== "object" ||
+    data === null ||
+    !("chatroom" in data) ||
+    typeof data.chatroom !== "object" ||
+    data.chatroom === null ||
+    !("id" in data.chatroom) ||
+    typeof data.chatroom.id !== "string" ||
+    !("name" in data.chatroom) ||
+    typeof data.chatroom.name !== "string" ||
+    !("created_at" in data.chatroom) ||
+    typeof data.chatroom.created_at !== "string" ||
+    !("expires_at" in data.chatroom) ||
+    typeof data.chatroom.expires_at !== "string"
+  ) {
+    throw new Error("Invalid chatroom response");
+  }
+
+  return {
+    id: data.chatroom.id,
+    name: data.chatroom.name,
+    createdAt: data.chatroom.created_at,
+    expiresAt: data.chatroom.expires_at,
+  };
 }
 
 export async function getMessages(chatroomId: string): Promise<Message[]> {
-  void chatroomId;
-  throw new Error("Not implemented");
+  if (typeof chatroomId !== "string" || chatroomId.trim() === "") {
+    throw new Error("chatroomId must be a non-empty string");
+  }
+
+  const response = await fetch(
+    `${API_URL}/api/chatrooms/${encodeURIComponent(chatroomId)}/messages`,
+    {
+      credentials: "include",
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error(`Request failed with status ${response.status}`);
+  }
+
+  const data: unknown = await response.json();
+
+  if (
+    typeof data !== "object" ||
+    data === null ||
+    !("messages" in data) ||
+    !Array.isArray(data.messages)
+  ) {
+    throw new Error("Invalid messages response");
+  }
+
+  return data.messages.map((message: unknown) => {
+    if (
+      typeof message !== "object" ||
+      message === null ||
+      !("id" in message) ||
+      typeof message.id !== "string" ||
+      !("chatroom_id" in message) ||
+      typeof message.chatroom_id !== "string" ||
+      !("sender_id" in message) ||
+      typeof message.sender_id !== "string" ||
+      !("content" in message) ||
+      typeof message.content !== "string" ||
+      !("created_at" in message) ||
+      typeof message.created_at !== "string" ||
+      !("edited_at" in message) ||
+      (message.edited_at !== null && typeof message.edited_at !== "string")
+    ) {
+      throw new Error("Invalid message response");
+    }
+
+    return {
+      id: message.id,
+      chatroomId: message.chatroom_id,
+      senderId: message.sender_id,
+      content: message.content,
+      createdAt: message.created_at,
+      editedAt: message.edited_at,
+    };
+  });
 }
 
 export async function createMessage(
@@ -174,11 +293,68 @@ export async function createMessage(
 }
 
 export async function deleteMessage(messageId: string): Promise<Message> {
-  void messageId;
-  throw new Error("Not implemented");
+  if (typeof messageId !== "string" || messageId.trim() === "") {
+    throw new Error("messageId must be a non-empty string");
+  }
+
+  const response = await fetch(
+    `${API_URL}/api/messages/${encodeURIComponent(messageId)}`,
+    {
+      method: "DELETE",
+      credentials: "include",
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error(`Request failed with status ${response.status}`);
+  }
+
+  const data: unknown = await response.json();
+
+  if (
+    typeof data !== "object" ||
+    data === null ||
+    !("message" in data) ||
+    typeof data.message !== "object" ||
+    data.message === null ||
+    !("id" in data.message) ||
+    typeof data.message.id !== "string" ||
+    !("chatroom_id" in data.message) ||
+    typeof data.message.chatroom_id !== "string" ||
+    !("sender_id" in data.message) ||
+    typeof data.message.sender_id !== "string" ||
+    !("content" in data.message) ||
+    typeof data.message.content !== "string" ||
+    !("created_at" in data.message) ||
+    typeof data.message.created_at !== "string"
+  ) {
+    throw new Error("Invalid deleted message response");
+  }
+
+  return {
+    id: data.message.id,
+    chatroomId: data.message.chatroom_id,
+    senderId: data.message.sender_id,
+    content: data.message.content,
+    createdAt: data.message.created_at,
+    editedAt: null,
+  };
 }
 
 export async function deleteChatroom(chatroomId: string): Promise<void> {
-  void chatroomId;
-  throw new Error("Not implemented");
+  if (typeof chatroomId !== "string" || chatroomId.trim() === "") {
+    throw new Error("chatroomId must be a non-empty string");
+  }
+
+  const response = await fetch(
+    `${API_URL}/api/chatrooms/${encodeURIComponent(chatroomId)}`,
+    {
+      method: "DELETE",
+      credentials: "include",
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error(`Request failed with status ${response.status}`);
+  }
 }
