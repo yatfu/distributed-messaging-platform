@@ -1,24 +1,64 @@
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import MessageForm from "../components/messageForm";
 import MessageList from "../components/messageList";
+import { getChatroom } from "../lib/api";
+import type { Chatroom } from "../lib/types";
 
 export default function ChatroomPage() {
-  const { chatroomId } = useParams<{
-    chatroomId: string;
-  }>();
+  const { chatroomId } = useParams<{ chatroomId: string }>();
+  const [chatroom, setChatroom] = useState<Chatroom | null>(null);
+  const [error, setError] = useState("");
+  
+  useEffect(() => {
+    if (!chatroomId) {
+      setError("Invalid chatroom URL");
+      return;
+    }
+  
+    const validChatroomId = chatroomId; // to pass validation from string | null to string
+  
+    async function loadChatroom() {
+      try {
+        const chatroom = await getChatroom(validChatroomId);
+        setChatroom(chatroom);
+      } catch {
+        setError("Chatroom not found or expired");
+      }
+    }
+  
+    void loadChatroom();
+  }, [chatroomId]);
 
-  if (!chatroomId) {
-    return <p>Invalid chatroom URL</p>;
+  //conditional render
+  if (error) {
+    return <p>{error}</p>;
   }
+
+  if (!chatroom) {
+    return <p>Loading...</p>;
+  }
+
+  const roomUrl = `${window.location.origin}/chatrooms/${chatroom.id}`;
 
   return (
     <div>
-      <p>Room: {chatroomId}</p>
+      <p>Room: {chatroom.id}</p>
+      <p>URL: {roomUrl}</p>
       <MessageList messages={PLACEHOLDER_MESSAGES} />
-      <MessageForm chatroomId={chatroomId}/>
+      <MessageForm chatroomId={chatroom.id}/>
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
 
 const PLACEHOLDER_MESSAGES = [
   {
