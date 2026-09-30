@@ -10,7 +10,7 @@ export default function ChatroomPage() {
   const [chatroom, setChatroom] = useState<Chatroom | null>(null);
   const [error, setError] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
-  
+
   // ON CHATROOM CHANGE:
   //reset state
   //validate new chatroomId parameter
@@ -18,7 +18,7 @@ export default function ChatroomPage() {
   //load messages if chatroom succeeds
   //update state
   //throw error on failure
-  
+
   useEffect(() => {
     // reset state
     setChatroom(null);
@@ -32,16 +32,16 @@ export default function ChatroomPage() {
     }
 
     const validChatroomId = chatroomId; // converts typescript type from string | null to string
-    
+
     //load chatroom and messages, then update state
     async function loadRoom() {
       try {
-        const loadedChatroom =
-          await getChatroom(validChatroomId);
-    
-        const loadedMessages =
-          await getMessages(validChatroomId);
-    
+        const loadedChatroom = await getChatroom(validChatroomId);
+        console.log("chatroom loaded");
+
+        const loadedMessages = await getMessages(validChatroomId);
+        console.log("messages loaded");
+
         setChatroom(loadedChatroom);
         setMessages(loadedMessages);
       } catch {
@@ -65,10 +65,18 @@ export default function ChatroomPage() {
 
   return (
     <div>
-      <p>Room: {chatroom.id}</p>
+      <h1>{chatroom.name}</h1>
       <p>URL: {roomUrl}</p>
       <MessageList messages={messages} />
-      <MessageForm chatroomId={chatroom.id}/>
+      <MessageForm
+        chatroomId={chatroom.id}
+        onMessageCreated={(createdMessage) => {
+          setMessages((currentMessages) => [
+            ...currentMessages,
+            createdMessage,
+          ]);
+        }}
+      />
     </div>
   );
 }
