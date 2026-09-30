@@ -67,7 +67,14 @@ export default function ChatroomPage() {
     <div>
       <h1>{chatroom.name}</h1>
       <p>URL: {roomUrl}</p>
-      <MessageList messages={messages} />
+      <MessageList
+        messages={messages}
+        onMessageDeleted={(deletedMessageId) => {
+          setMessages((currentMessages) =>
+            currentMessages.filter((message) => message.id !== deletedMessageId)
+          );
+        }}
+      />
       <MessageForm
         chatroomId={chatroom.id}
         onMessageCreated={(createdMessage) => {
