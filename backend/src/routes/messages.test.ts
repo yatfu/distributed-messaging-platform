@@ -43,7 +43,8 @@ describe("POST /api/messages", () => {
       .expect(201);
 
     expect(response.body.message.content).toBe("Hello");
-    expect(response.body.message.chatroom_id).toBe(room.id);
+    expect(response.body.message.username).toBe("Test User");
+    expect(response.body.message.edited_at).toBeNull();
   });
 
   it("rejects creating a message without authentication", async () => {
@@ -75,6 +76,28 @@ describe("POST /api/messages", () => {
       .send({
         room: room.id,
         message: message,
+      })
+      .expect(400);
+  });
+  it("accepts message content containing exactly 2000 characters", async () => {
+    const { agent, room } = await createTestRoom();
+
+    await agent
+      .post("/api/messages")
+      .send({
+        room: room.id,
+        message: "a".repeat(2000),
+      })
+      .expect(201);
+  });
+  it("rejects message content longer than 2000 characters", async () => {
+    const { agent, room } = await createTestRoom();
+
+    await agent
+      .post("/api/messages")
+      .send({
+        room: room.id,
+        message: "a".repeat(2001),
       })
       .expect(400);
   });
@@ -145,6 +168,8 @@ describe("GET /api/chatrooms/:chatroomId/messages", () => {
 
     expect(response.body.messages).toHaveLength(1);
     expect(response.body.messages[0].content).toBe("Hello");
+    expect(response.body.messages[0].username).toBe("Test User");
+    expect(response.body.messages[0].edited_at).toBeNull();
   });
 });
 
@@ -160,7 +185,12 @@ describe("DELETE /api/messages/:messageId", () => {
       })
       .expect(201);
 
-    await agent.delete(`/api/messages/${created.body.message.id}`).expect(200);
+    const deleted = await agent
+      .delete(`/api/messages/${created.body.message.id}`)
+      .expect(200);
+
+    expect(deleted.body.message.username).toBe("Test User");
+    expect(deleted.body.message.edited_at).toBeNull();
   });
 
   it("rejects deleting a message sent by another user", async () => {

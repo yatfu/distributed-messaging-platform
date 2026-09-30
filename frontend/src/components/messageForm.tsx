@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { SubmitEventHandler } from "react";
-import { createMessage } from "../lib/api";
+import { createMessage, MAX_MESSAGE_LENGTH } from "../lib/api";
 import type { Message } from "../lib/types";
 
 type MessageFormProps = {
@@ -41,7 +41,11 @@ export default function MessageForm({ chatroomId, onMessageCreated }: MessageFor
           value={formText}
           onChange={(e) => setFormText(e.target.value)}
           placeholder="Type your message..."
+          maxLength={MAX_MESSAGE_LENGTH}
+          required
         />
+
+        <span>{formText.length}/{MAX_MESSAGE_LENGTH}</span>
 
         <button type="submit">Send</button>
       </form>

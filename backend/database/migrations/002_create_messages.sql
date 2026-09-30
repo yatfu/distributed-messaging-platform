@@ -2,7 +2,7 @@ CREATE TABLE messages (
     id UUID PRIMARY KEY,
     chatroom_id UUID NOT NULL,
     sender_id UUID NOT NULL,
-    content TEXT NOT NULL,
+    content VARCHAR(2000) NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     edited_at TIMESTAMPTZ,
 

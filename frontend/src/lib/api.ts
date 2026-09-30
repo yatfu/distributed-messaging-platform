@@ -12,6 +12,7 @@ import type { Chatroom, Message, User } from "./types";
  */
 
 const API_URL = import.meta.env.VITE_API_URL;
+export const MAX_MESSAGE_LENGTH = 2000;
 
 export async function createChatroom(name: string): Promise<Chatroom> {
   //validate input
@@ -208,8 +209,6 @@ export async function getMessages(chatroomId: string): Promise<Message[]> {
       message === null ||
       !("id" in message) ||
       typeof message.id !== "string" ||
-      !("chatroom_id" in message) ||
-      typeof message.chatroom_id !== "string" ||
       !("sender_id" in message) ||
       typeof message.sender_id !== "string" ||
       !("content" in message) ||
@@ -217,18 +216,20 @@ export async function getMessages(chatroomId: string): Promise<Message[]> {
       !("created_at" in message) ||
       typeof message.created_at !== "string" ||
       !("edited_at" in message) ||
-      (message.edited_at !== null && typeof message.edited_at !== "string")
+      (message.edited_at !== null && typeof message.edited_at !== "string") ||
+      !("username" in message) ||
+      typeof message.username !== "string"
     ) {
       throw new Error("Invalid message response");
     }
 
     return {
       id: message.id,
-      chatroomId: message.chatroom_id,
       senderId: message.sender_id,
       content: message.content,
       createdAt: message.created_at,
       editedAt: message.edited_at,
+      username: message.username,
     };
   });
 }
@@ -241,8 +242,16 @@ export async function createMessage(
   if (typeof chatroomId !== "string" || chatroomId.trim() === "") {
     throw new Error("chatroomId needs to be non-empty string");
   }
-  if (typeof content !== "string") {
-    throw new Error("chatroomId needs to be a string");
+  if (typeof content !== "string" || content.trim() === "") {
+    throw new Error("Message must be a non-empty string");
+  }
+
+  const trimmedContent = content.trim();
+
+  if (trimmedContent.length > MAX_MESSAGE_LENGTH) {
+    throw new Error(
+      `Message must contain at most ${MAX_MESSAGE_LENGTH} characters`,
+    );
   }
   //calll endpoint
   const response = await fetch(`${API_URL}/api/messages/`, {
@@ -253,7 +262,7 @@ export async function createMessage(
     credentials: "include",
     body: JSON.stringify({
       room: chatroomId,
-      message: content,
+      message: trimmedContent,
     }),
   });
   //check status
@@ -271,25 +280,28 @@ export async function createMessage(
     data.message === null ||
     !("id" in data.message) ||
     typeof data.message.id !== "string" ||
-    !("chatroom_id" in data.message) ||
-    typeof data.message.chatroom_id !== "string" ||
     !("sender_id" in data.message) ||
     typeof data.message.sender_id !== "string" ||
     !("content" in data.message) ||
     typeof data.message.content !== "string" ||
     !("created_at" in data.message) ||
-    typeof data.message.created_at !== "string"
+    typeof data.message.created_at !== "string" ||
+    !("edited_at" in data.message) ||
+    (data.message.edited_at !== null &&
+      typeof data.message.edited_at !== "string") ||
+    !("username" in data.message) ||
+    typeof data.message.username !== "string"
   ) {
     throw new Error("Invalid response from messages");
   }
 
   return {
     id: data.message.id,
-    chatroomId: data.message.chatroom_id,
     senderId: data.message.sender_id,
     content: data.message.content,
     createdAt: data.message.created_at,
-    editedAt: null,
+    editedAt: data.message.edited_at,
+    username: data.message.username,
   };
 }
 
@@ -320,25 +332,28 @@ export async function deleteMessage(messageId: string): Promise<Message> {
     data.message === null ||
     !("id" in data.message) ||
     typeof data.message.id !== "string" ||
-    !("chatroom_id" in data.message) ||
-    typeof data.message.chatroom_id !== "string" ||
     !("sender_id" in data.message) ||
     typeof data.message.sender_id !== "string" ||
     !("content" in data.message) ||
     typeof data.message.content !== "string" ||
     !("created_at" in data.message) ||
-    typeof data.message.created_at !== "string"
+    typeof data.message.created_at !== "string" ||
+    !("edited_at" in data.message) ||
+    (data.message.edited_at !== null &&
+      typeof data.message.edited_at !== "string") ||
+    !("username" in data.message) ||
+    typeof data.message.username !== "string"
   ) {
     throw new Error("Invalid deleted message response");
   }
 
   return {
     id: data.message.id,
-    chatroomId: data.message.chatroom_id,
     senderId: data.message.sender_id,
     content: data.message.content,
     createdAt: data.message.created_at,
-    editedAt: null,
+    editedAt: data.message.edited_at,
+    username: data.message.username,
   };
 }
 

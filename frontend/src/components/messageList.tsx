@@ -11,7 +11,7 @@ export default function MessageList({
     <div id="message-list">
       {messages.map((message) => (
         <div key={message.id}>
-          <p>senderId: {message.senderId}</p>
+          <p>sender: {message.username}</p>
           <p>content: {message.content}</p>
         </div>
       ))}
