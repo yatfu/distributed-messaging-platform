@@ -4,23 +4,23 @@ import { createMessage } from "../lib/api";
 
 export default function MessageForm({ chatroomId }: { chatroomId: string }) {
 
-  const [message, setMessage] = useState("");
+  const [formText, setFormText] = useState("");
 
 
   const handleSubmit: SubmitEventHandler<HTMLFormElement> =
     async (event) => {
       event.preventDefault();
   
-      await createMessage(chatroomId, message);
-      setMessage("");
+      await createMessage(chatroomId, formText);
+      setFormText("");
     };
   return (
     <div>
       <form onSubmit={handleSubmit}>
         <input
           type="text"
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
+          value={formText}
+          onChange={(e) => setFormText(e.target.value)}
           placeholder="Type your message..."
         />
 

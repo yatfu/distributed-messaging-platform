@@ -140,7 +140,7 @@ export async function getChatroom(chatroomId: string): Promise<Chatroom> {
     `${API_URL}/api/chatrooms/${encodeURIComponent(chatroomId)}`,
     {
       credentials: "include",
-    },
+    }
   );
 
   if (!response.ok) {
@@ -184,7 +184,7 @@ export async function getMessages(chatroomId: string): Promise<Message[]> {
     `${API_URL}/api/chatrooms/${encodeURIComponent(chatroomId)}/messages`,
     {
       credentials: "include",
-    },
+    }
   );
 
   if (!response.ok) {
@@ -235,7 +235,7 @@ export async function getMessages(chatroomId: string): Promise<Message[]> {
 
 export async function createMessage(
   chatroomId: string,
-  content: string,
+  content: string
 ): Promise<Message> {
   //validate input
   if (typeof chatroomId !== "string" || chatroomId.trim() === "") {
@@ -266,26 +266,29 @@ export async function createMessage(
   if (
     typeof data !== "object" ||
     data === null ||
-    !("id" in data) ||
-    typeof data.id !== "string" ||
-    !("chatroom_id" in data) ||
-    typeof data.chatroom_id !== "string" ||
-    !("sender_id" in data) ||
-    typeof data.sender_id !== "string" ||
-    !("content" in data) ||
-    typeof data.content !== "string" ||
-    !("created_at" in data) ||
-    typeof data.created_at !== "string" ||
-    !("expires_at" in data)
+    !("message" in data) ||
+    typeof data.message !== "object" ||
+    data.message === null ||
+    !("id" in data.message) ||
+    typeof data.message.id !== "string" ||
+    !("chatroom_id" in data.message) ||
+    typeof data.message.chatroom_id !== "string" ||
+    !("sender_id" in data.message) ||
+    typeof data.message.sender_id !== "string" ||
+    !("content" in data.message) ||
+    typeof data.message.content !== "string" ||
+    !("created_at" in data.message) ||
+    typeof data.message.created_at !== "string"
   ) {
-    throw new Error("invalid response from messages");
+    throw new Error("Invalid response from messages");
   }
+
   return {
-    id: data.id,
-    chatroomId: data.chatroom_id,
-    senderId: data.sender_id,
-    content: data.content,
-    createdAt: data.created_at,
+    id: data.message.id,
+    chatroomId: data.message.chatroom_id,
+    senderId: data.message.sender_id,
+    content: data.message.content,
+    createdAt: data.message.created_at,
     editedAt: null,
   };
 }
@@ -300,7 +303,7 @@ export async function deleteMessage(messageId: string): Promise<Message> {
     {
       method: "DELETE",
       credentials: "include",
-    },
+    }
   );
 
   if (!response.ok) {
@@ -349,7 +352,7 @@ export async function deleteChatroom(chatroomId: string): Promise<void> {
     {
       method: "DELETE",
       credentials: "include",
-    },
+    }
   );
 
   if (!response.ok) {
