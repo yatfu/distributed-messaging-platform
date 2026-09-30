@@ -36,7 +36,7 @@ router.post("/", async (req, res) => {
   const result = await pool.query(
     `INSERT INTO chatrooms (id, admin_id, name, expires_at) 
     VALUES ($1, $2, $3, NOW() + INTERVAL '1 day') 
-    RETURNING id, name, created_at, expires_at`,
+    RETURNING id, name, created_at, expires_at;`,
     [roomId, validUserId, validName]
   );
 
@@ -75,7 +75,7 @@ router.get("/:chatroomId/messages", async (req, res) => {
     `SELECT id
      FROM chatrooms
      WHERE id = $1
-       AND expires_at > NOW()`,
+       AND expires_at > NOW();`,
     [validChatroomId]
   );
   // throw if empty
@@ -85,8 +85,15 @@ router.get("/:chatroomId/messages", async (req, res) => {
 
   // query messages
   const result = await pool.query(
-    `SELECT * FROM messages
-    WHERE chatroom_id = $1`,
+    `SELECT
+      m.id,
+      m.content,
+      m.created_at,
+      u.username
+    FROM messages m
+    JOIN users u ON u.id = m.sender_id
+    WHERE m.chatroom_id = $1
+    ORDER BY m.created_at;`,
     [validChatroomId]
   );
   //return result as json. SQL data ---(postgresql conversion)--> javascript object ----(json function)---> response
