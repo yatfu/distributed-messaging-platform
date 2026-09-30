@@ -1,19 +1,38 @@
 import { useState } from "react";
 import type { SubmitEventHandler } from "react";
 import { createMessage } from "../lib/api";
+import type { Message } from "../lib/types";
 
-export default function MessageForm({ chatroomId }: { chatroomId: string }) {
+type MessageFormProps = {
+  chatroomId: string;
+  onMessageCreated: (message: Message) => void;
+};
 
+export default function MessageForm({ chatroomId, onMessageCreated }: MessageFormProps) {
+  const [submitting, setSubmitting] = useState(false);
   const [formText, setFormText] = useState("");
+  const [error, setError] = useState("");
 
+  const handleSubmit: SubmitEventHandler<HTMLFormElement> = async (event) => {
+    event.preventDefault();
 
-  const handleSubmit: SubmitEventHandler<HTMLFormElement> =
-    async (event) => {
-      event.preventDefault();
-  
-      await createMessage(chatroomId, formText);
+    // help prevent duplicate submissions
+    if (submitting) {
+      return;
+    }
+    setSubmitting(true);
+    setError("");
+
+    try {
+      const createdMessage = await createMessage(chatroomId, formText); // create message
+      onMessageCreated(createdMessage); // pass updated message
       setFormText("");
-    };
+    } catch {
+      setError("Message could not be created");
+    } finally {
+      setSubmitting(false);
+    }
+  };
   return (
     <div>
       <form onSubmit={handleSubmit}>
@@ -26,6 +45,8 @@ export default function MessageForm({ chatroomId }: { chatroomId: string }) {
 
         <button type="submit">Send</button>
       </form>
+
+      {error && <p role="alert">{error}</p>}
     </div>
   );
 }
