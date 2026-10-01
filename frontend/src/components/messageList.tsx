@@ -20,6 +20,7 @@ export default function MessageList({
     if (submitting) {
       return;
     }
+    setError("");
     setSubmitting(true);
     try {
       await deleteMessage(messageId);

@@ -26,7 +26,7 @@ router.post("/", async (req, res) => {
   if (req.body?.name === undefined) {
     validName = "Chatroom";
   } else {
-    validName = validateString(req.body.name, "name");
+    validName = validateString(req.body.name, "name", 50);
   }
 
   console.log("Passed Validation, generating data for chatroom creation");
