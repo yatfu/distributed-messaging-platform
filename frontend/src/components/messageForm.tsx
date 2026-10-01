@@ -47,7 +47,9 @@ export default function MessageForm({ chatroomId, onMessageCreated }: MessageFor
 
         <span>{formText.length}/{MAX_MESSAGE_LENGTH}</span>
 
-        <button type="submit">Send</button>
+        <button type="submit" disabled={submitting}>
+          {submitting ? "Sending..." : "Send"}
+        </button>
       </form>
 
       {error && <p role="alert">{error}</p>}

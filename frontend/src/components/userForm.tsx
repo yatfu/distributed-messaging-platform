@@ -8,21 +8,35 @@ type UserFormProps = {
 
 export default function UserForm({ setUser }: UserFormProps) {
   const [name, setName] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
-    const user = await createUser(name);
-    // TEMPORARY DEVELOPMENT LOG
-    console.log("User created:", user);
 
-    setUser(user); // update useState for Home Page render
+    if (submitting) {
+      return;
+    }
+
+    setSubmitting(true);
+
+    try {
+      const user = await createUser(name);
+      // TEMPORARY DEVELOPMENT LOG
+      console.log("User created:", user);
+
+      setUser(user); // update useState for Home Page render
+    } finally {
+      setSubmitting(false);
+    }
   }
   return (
     <div>
       <form onSubmit={handleSubmit}>
         <label>Create User</label>
         <input value={name} onChange={(e) => setName(e.target.value)} />
-        <button type="submit">Create User</button>
+        <button type="submit" disabled={submitting}>
+          {submitting ? "Creating..." : "Create User"}
+        </button>
       </form>
     </div>
   );
