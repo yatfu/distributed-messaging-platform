@@ -6,6 +6,7 @@ export default function ChatroomForm() {
 
   const [name, setName] = useState("")
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
@@ -16,12 +17,13 @@ export default function ChatroomForm() {
     }
 
     setSubmitting(true);
+    setError("");
 
     try {
       const chatroom = await createChatroom(name);
-      // TEMPORARY DEVELOPMENT LOG
-      console.log("Chatroom created:", chatroom);
       navigate(`/chatrooms/${chatroom.id}`);
+    } catch {
+      setError("Could not create room. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -39,6 +41,7 @@ export default function ChatroomForm() {
           {submitting ? "Creating..." : "Create Room"}
         </button>
       </form>
+      {error && <p role="alert">{error}</p>}
     </div>
   )
 }

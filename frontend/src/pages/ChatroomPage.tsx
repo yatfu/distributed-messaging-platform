@@ -7,58 +7,35 @@ import type { Chatroom, Message, User } from "../lib/types";
 
 export default function ChatroomPage() {
   const { chatroomId } = useParams<{ chatroomId: string }>();
+
+  if (!chatroomId) {
+    return <p>Invalid chatroom URL</p>;
+  }
+
+  return <Chatroom key={chatroomId} chatroomId={chatroomId} />;
+}
+
+function Chatroom({ chatroomId }: { chatroomId: string }) {
   const [chatroom, setChatroom] = useState<Chatroom | null>(null);
   const [error, setError] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [copyStatus, setCopyStatus] = useState("");
   const [currentUser, setCurrentUser] = useState<User | null>(null);
 
-  // ON CHATROOM CHANGE:
-  //reset state
-  //validate new chatroomId parameter
-  //load chatroom
-  //load messages if chatroom succeeds
-  //update state
-  //throw error on failure
-
   useEffect(() => {
-    // reset state
-    setChatroom(null);
-    setMessages([]);
-    setError("");
-
-    //validate parameter
-    if (!chatroomId) {
-      setError("Invalid chatroom URL");
-      return;
-    }
-    //load user if exists in cookies
-    async function loadCurrentUser() {
-      try {
-        const user = await getCurrentUser();
-        setCurrentUser(user);
-      } catch {
-        setCurrentUser(null);
-      }
-    }
-
-    void loadCurrentUser();
-
-    const validChatroomId = chatroomId; // converts typescript type from string | null to string
-
-    //load chatroom and messages, then update state
     async function loadRoom() {
       try {
-        const loadedChatroom = await getChatroom(validChatroomId);
-        console.log("chatroom loaded");
-
-        const loadedMessages = await getMessages(validChatroomId);
-        console.log("messages loaded");
+        const [loadedChatroom, loadedMessages, loadedUser] = await Promise.all([
+          getChatroom(chatroomId),
+          getMessages(chatroomId),
+          getCurrentUser().catch(() => null),
+        ]);
 
         setChatroom(loadedChatroom);
         setMessages(loadedMessages);
+        setCurrentUser(loadedUser);
       } catch {
-        setError("Could not load room/messages");
+        setError("Could not load room or messages");
       }
     }
 

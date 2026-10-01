@@ -9,6 +9,7 @@ type UserFormProps = {
 export default function UserForm({ setUser }: UserFormProps) {
   const [name, setName] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
   async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -18,13 +19,13 @@ export default function UserForm({ setUser }: UserFormProps) {
     }
 
     setSubmitting(true);
+    setError("");
 
     try {
       const user = await createUser(name);
-      // TEMPORARY DEVELOPMENT LOG
-      console.log("User created:", user);
-
-      setUser(user); // update useState for Home Page render
+      setUser(user);
+    } catch {
+      setError("Could not create user. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -38,6 +39,7 @@ export default function UserForm({ setUser }: UserFormProps) {
           {submitting ? "Creating..." : "Create User"}
         </button>
       </form>
+      {error && <p role="alert">{error}</p>}
     </div>
   );
 }
