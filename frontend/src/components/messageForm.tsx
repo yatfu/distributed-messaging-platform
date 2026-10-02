@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { SubmitEventHandler } from "react";
 import { createMessage, MAX_MESSAGE_LENGTH } from "../lib/api";
-import type { Message } from "../lib/types";
+import type { Message } from "../../../shared/types";
 
 type MessageFormProps = {
   chatroomId: string;

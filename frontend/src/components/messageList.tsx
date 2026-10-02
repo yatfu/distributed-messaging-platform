@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { Message, User } from "../lib/types";
+import type { Message, User } from "../../../shared/types";
 import { deleteMessage } from "../lib/api";
 
 type MessageListProps = {

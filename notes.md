@@ -210,3 +210,18 @@ Clearly specify the mode:
 
 merge frontend mvp branch, implement websockets
 implement tests for websockets
+
+WS NOTES
+install ws, @types/ws -D
+define ws events in types.js
+create a room connection manager
+create functionality for:
+        add connection(chatroomId, socket), remove connection(chatroomId, socket), broadcast to room(chatroomId, event)
+attach websockets to http server
+broadcast message creation, deletion
+add frontend websocket url
+Create a frontend WebSocket function
+Prevent duplicate messages
+Handle connection loss
+Add automated tests
+Test manually
