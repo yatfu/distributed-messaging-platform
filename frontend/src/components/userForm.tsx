@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { createUser } from "../lib/api";
-import type { User } from "../../shared/types";
+import type { User } from "../lib/types";
 
 type UserFormProps = {
   setUser: (user: User) => void;

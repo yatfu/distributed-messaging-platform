@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import MessageForm from "../components/messageForm";
 import MessageList from "../components/messageList";
 import { getChatroom, getMessages, getCurrentUser } from "../lib/api";
-import type { Chatroom, Message, User } from "../../shared/types";
+import type { Chatroom, Message, User } from "../lib/types";
 
 export default function ChatroomPage() {
   const { chatroomId } = useParams<{ chatroomId: string }>();

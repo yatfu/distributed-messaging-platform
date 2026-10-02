@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import ChatroomForm from "../components/chatroomForm";
 import UserForm from "../components/userForm";
-import type { User } from "../../shared/types";
+import type { User } from "../lib/types";
 import { getCurrentUser } from "../lib/api";
 
 export default function HomePage() {

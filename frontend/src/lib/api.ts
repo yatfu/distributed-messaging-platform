@@ -1,4 +1,4 @@
-import type { Chatroom, Message, User } from "../../shared/types";
+import type { Chatroom, Message, User } from "./types";
 
 /** API GUIDELINES
  * validate input
