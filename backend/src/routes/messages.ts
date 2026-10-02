@@ -5,6 +5,7 @@ import { getUserFromToken } from "../lib/auth.js";
 import crypto from "node:crypto";
 
 const router = express.Router();
+const MAX_MESSAGE_LENGTH = 2000;
 
 // CREATE message given user session token and chatroom id
 router.post("/", async (req, res) => {
@@ -13,7 +14,11 @@ router.post("/", async (req, res) => {
   //validate user from token
   const validUser = await getUserFromToken(req.cookies.sessionToken);
   //validate message
-  const validMessage = validateString(req.body?.message, "message");
+  const validMessage = validateString(
+    req.body?.message,
+    "message",
+    MAX_MESSAGE_LENGTH,
+  );
   //create message
   const messageId = crypto.randomUUID();
   const result = await pool.query(`
@@ -21,13 +26,18 @@ router.post("/", async (req, res) => {
     SELECT $1, id, $3, $4 FROM chatrooms
     WHERE id = $2
       AND expires_at > NOW()
-    RETURNING id, chatroom_id, sender_id, content, created_at;
+    RETURNING id, sender_id, content, created_at, edited_at;
   `, [messageId, validChatroomId, validUser.id, validMessage]) // INSERT -> SELECT inserts only after select
   //check to see if message was inserted
   if (result.rows.length === 0) {
     return res.status(404).json({ error: "Chatroom expired or not found"}); //404: chatroom not found or expired
   }
-  return res.status(201).json({ message: result.rows[0]}); // 201: message created
+  return res.status(201).json({
+    message: {
+      ...result.rows[0],
+      username: validUser.name,
+    },
+  }); // 201: message created
 });
 // EDIT message given message id and user session token - NOT MVP STAGE
 
@@ -44,13 +54,18 @@ router.delete("/:messageId", async (req, res) => {
   const result = await pool.query(
     `DELETE FROM messages
      WHERE id = $1 AND sender_id = $2
-     RETURNING id, chatroom_id, sender_id, content, created_at`,
+     RETURNING id, sender_id, content, created_at, edited_at`,
     [validMessageId, validUserId]
   );
   if (result.rowCount === 0) {
     return res.status(404).json({ error: "Message not found" });
   }
-  return res.status(200).json({ message: result.rows[0] });
+  return res.status(200).json({
+    message: {
+      ...result.rows[0],
+      username: validUser.name,
+    },
+  });
 });
 
 export default router;

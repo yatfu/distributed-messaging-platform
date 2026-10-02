@@ -13,6 +13,12 @@ describe("validateString", () => {
   it("rejects validating a non-string value", () => {
     expect(() => validateString(67, "non-string message")).toThrow();
   });
+
+  it("rejects a string longer than the maximum length", () => {
+    expect(() => validateString("hello", "message", 4)).toThrow(
+      "message must contain at most 4 characters",
+    );
+  });
 });
 
 describe("validateUuid", () => {

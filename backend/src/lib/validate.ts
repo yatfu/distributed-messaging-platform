@@ -2,12 +2,25 @@ import { ApiError } from "./Errors.js";
 import { validate as isUuid } from "uuid";
 
 //chatroom validation: accepts either chatroom or both chatroom and user id
-export function validateString(value: unknown, field: string): string {
+export function validateString(
+  value: unknown,
+  field: string,
+  maxLength?: number,
+): string {
   if (typeof value !== "string" || value.trim() === "") {
     throw new ApiError(400, `${field} must be a non-empty string`);
   }
 
-  return value.trim();
+  const trimmedValue = value.trim();
+
+  if (maxLength !== undefined && trimmedValue.length > maxLength) {
+    throw new ApiError(
+      400,
+      `${field} must contain at most ${maxLength} characters`,
+    );
+  }
+
+  return trimmedValue;
 }
 
 export function validateUuid(value: unknown,field: string): string {

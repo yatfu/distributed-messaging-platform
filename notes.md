@@ -12,6 +12,12 @@ user stories
 as a chatroom creator i want to see who accessed my chatroom and its messages so I know who accessed it, not for identification but for verification
 as a user i want to
 
+AFTER MVP:
+add settings for chatrooms
+        optional room passwords
+        optional file sharing
+        optional read only
+        optional join approval
 NOTES
 database schema: no users, instead a temp uuid stored client side
 chatroom:
@@ -123,3 +129,84 @@ Error handling
 - Missing or invalid authentication returns 401.
 - Missing resources return 404.
 - Unexpected database errors return 500 without exposing internal details.
+
+3. React components
+        ↓
+4. Props
+        ↓
+5. State / useState
+        ↓
+6. Events
+        ↓
+7. Lists + conditional rendering
+        ↓
+8. useEffect
+        ↓
+9. React Router
+        ↓
+10. API requests
+        ↓
+11. Authentication
+        ↓
+12. Global state/context
+        ↓
+13. WebSockets/realtime
+        ↓
+14. Production deployment
+
+define API response types
+create api layer
+connect api to ui, adding message functionality
+        create, edit, delete
+build landing page (& room creation page?)
+routing
+connect messageForm
+
+Before WebSockets, finish this checklist:
+1. Complete message UI state:
+   - New messages appear immediately.
+   - Deleted messages disappear immediately.
+   - Empty rooms show “No messages yet.”
+2. Display useful message information:
+   - Sender display name instead of UUID
+   - Formatted timestamp
+   - Delete button only for the current user’s messages
+3. Handle frontend request states:
+   - Loading indicators
+   - Clear error messages
+   - Disabled buttons during requests
+   - Prevent empty and duplicate submissions
+4. Complete room usability:
+   - Display the room name
+   - Add a copy-link button
+   - Handle invalid and expired rooms
+   - Handle direct links and page refreshes
+5. Fix database consistency:
+   - Ensure the running schema matches every migration.
+   - Add appropriate foreign keys for user references.
+   - Confirm expired-room cleanup works.
+6. Test the complete flow with two private browser windows:
+
+Parent owns state
+   ↓ data through props
+Child displays data
+
+Child calls callback
+   ↑ new data
+Parent updates state and rerenders children
+
+Work with AI in complete, small features rather than individual lines.
+1. Define the desired behavior and acceptance criteria.
+2. Ask AI to inspect related files and propose a plan.
+3. Approve the plan.
+4. Implement across database, backend, frontend, and tests.
+5. Run type checks, linting, tests, builds, and review the diff.
+6. Commit before starting another feature.
+Clearly specify the mode:
+- Tutor: explain while you write.
+- Implement: complete the feature.
+- Review: find problems without editing.
+- Debug: identify the root cause first.
+
+merge frontend mvp branch, implement websockets
+implement tests for websockets

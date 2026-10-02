@@ -52,6 +52,19 @@ describe("POST /api/chatrooms", () => {
 
     expect(response.body.name).toBe("Chatroom");
   });
+
+  it("rejects a chatroom name longer than 50 characters", async () => {
+    const agent = request.agent(testApp);
+    await agent
+      .post("/api/users/create")
+      .send({ name: "Test User" })
+      .expect(201);
+
+    await agent
+      .post("/api/chatrooms")
+      .send({ name: "a".repeat(51) })
+      .expect(400);
+  });
 });
 
 describe("GET /api/chatrooms/:chatroomId", () => {
