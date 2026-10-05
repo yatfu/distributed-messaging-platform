@@ -10,13 +10,12 @@ const MAX_MESSAGE_LENGTH = 2000;
 // CREATE message given user session token and chatroom id
 router.post("/", async (req, res) => {
   //validate chatroom
-  const validChatroomId = validateUuid(req.body?.room, "chatroomId"); // req.body? checks if body exists, if exists then gets room
+  const validChatroomId = validateUuid(req.body?.room); // req.body? checks if body exists, if exists then gets room
   //validate user from token
   const validUser = await getUserFromToken(req.cookies.sessionToken);
   //validate message
   const validMessage = validateString(
     req.body?.message,
-    "message",
     MAX_MESSAGE_LENGTH,
   );
   //create message
@@ -45,7 +44,7 @@ router.post("/", async (req, res) => {
 router.delete("/:messageId", async (req, res) => {
   //validate message id, token id
   const { messageId } = req.params;
-  const validMessageId = validateUuid(messageId, "messageId");
+  const validMessageId = validateUuid(messageId);
 
   const token = req.cookies.sessionToken;
   const validUser = await getUserFromToken(token);

@@ -26,7 +26,7 @@ router.post("/", async (req, res) => {
   if (req.body?.name === undefined) {
     validName = "Chatroom";
   } else {
-    validName = validateString(req.body.name, "name", 50);
+    validName = validateString(req.body.name, 50);
   }
 
   console.log("Passed Validation, generating data for chatroom creation");
@@ -47,7 +47,7 @@ router.post("/", async (req, res) => {
 router.get("/:chatroomId", async (req, res) => {
   const { chatroomId } = req.params;
   //validate
-  const validChatroomId = validateUuid(chatroomId, "chatroomId");
+  const validChatroomId = validateUuid(chatroomId);
   //get chatroom
   const result = await pool.query(
     `
@@ -69,7 +69,7 @@ router.get("/:chatroomId", async (req, res) => {
 router.get("/:chatroomId/messages", async (req, res) => {
   const { chatroomId } = req.params;
   // validate
-  const validChatroomId = validateUuid(chatroomId, "chatroomId");
+  const validChatroomId = validateUuid(chatroomId);
 
   const roomResult = await pool.query(
     `SELECT id
@@ -108,7 +108,7 @@ router.get("/:chatroomId/messages", async (req, res) => {
 router.delete("/:chatroomId", async (req, res) => {
   const { chatroomId } = req.params;
   //validate
-  const validChatroomId = validateUuid(chatroomId, "chatroomId");
+  const validChatroomId = validateUuid(chatroomId);
   const user = await getUserFromToken(req.cookies.sessionToken);
 
   // query deletion
