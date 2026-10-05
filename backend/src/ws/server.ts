@@ -1,28 +1,53 @@
 //types for Node http server and requests
-import type { IncomingMessage, Server as HttpServer } from "node:http";
+import type { Server as HttpServer } from "node:http";
 //Websocket is one browser connection, WebSocketServer is the manager for new connections
-import WebSocket, { WebSocketServer, } from "ws";
+import { WebSocketServer } from "ws";
+import { addConnection, removeConnection, broadcastToRoom } from "./rooms.js";
+import { pool } from "../db.js";
+import { validateUuid } from "../lib/validate.js";
 
-const server = new WebSocketServer({ port: 3000 });
+// upgrade http server to WS server
+export function createWebSocketServer(httpServer: HttpServer): WebSocketServer {
+  const webSocketServer = new WebSocketServer({
+    server: httpServer,
+    path: "/ws",
+  });
   // on user connection
-server.on("connection", (socket) => {
-  console.log("user connected to websocket server")
-  server.clients.forEach((client) => {
-    if (client.readyState === WebSocket.OPEN) { // if client connection is still open at this moment, prevents errors with disconnected users
-      client.send("User connected to chatroom.");
-    }
-  })
-
-  // event when user sends message to ws server
-  socket.on("message", (message) => {
-    const text = message.toString();
-    console.log("Recieved: ", text);
-    socket.send("message recieved from server :)");
-    //broadcast to all other "clients"
-    server.clients.forEach((client) => {
-      if (client.readyState === WebSocket.OPEN) { // if client connection is still open at this moment, prevents errors with disconnected users
-        client.send(text);
+  webSocketServer.on("connection", async (socket, request) => {
+    // extract params from url
+    try {
+      const url = new URL(request.url ?? "/", "http://localhost");
+      const chatroomId = url.searchParams.get("chatroomId");
+      //validate params
+      const validChatroomId = validateUuid(chatroomId);
+      //check to see if chatroom exists
+      const result = await pool.query(
+        `SELECT id FROM chatrooms 
+          WHERE id = $1
+          AND expires_at > NOW()`, [validChatroomId]
+      );
+      if (result.rowCount === 0) {
+        socket.close(1008, "chatroom not found or expired");
+        return;
       }
-    })
-  })
-})
+      //add connection to websocket manager
+      addConnection(validChatroomId, socket);
+      console.log("user connected");
+
+      //on user disconnect
+      socket.on("close", () => {
+        removeConnection(validChatroomId, socket);
+        console.log("User disconnected");
+      });
+    } catch {
+      // close socket if error throws
+      socket.close(1008, "invalid chatroom");
+    }
+
+    socket.on("error", (error) => {
+      console.error("WebSocket error: ", error);
+    });
+  });
+
+  return webSocketServer;
+}
