@@ -1,4 +1,4 @@
-import type Websocket from "ws";
+import type WebSocket from "ws";
 import type { ServerEvent } from "../lib/types.js";
 import { validateUuid } from "../lib/validate.js";
 
