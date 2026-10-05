@@ -17,4 +17,18 @@ export type ServerEvent =
       type: "message.deleted";
       chatroomId: string;
       messageId: string;
+    }
+  | {
+      type: "user.joined";
+      chatroomId: string;
+      user: User;
+    }
+  | {
+      type: "user.left";
+      chatroomId: string;
+      user: User;
     };
+      type User = {
+  id: string;
+  name: string;
+}
