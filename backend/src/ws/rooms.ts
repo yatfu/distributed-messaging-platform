@@ -29,9 +29,9 @@ export function removeConnection(chatroomId: string, socket: WebSocket) {
   }
 }
 
-export function broadcastToRoom(chatroomId: string, event: ServerEvent) {
+export function broadcastToRoom( event: ServerEvent) {
   // get Set from Map
-  let connections = roomConnections.get(chatroomId);
+  let connections = roomConnections.get(event.chatroomId);
   if (!connections) {
     return;
   }

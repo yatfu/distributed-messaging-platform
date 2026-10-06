@@ -50,7 +50,7 @@ export function createWebSocketServer(httpServer: HttpServer): WebSocketServer {
         },
       } satisfies ServerEvent;
       //broadcast event
-      broadcastToRoom(validChatroomId, event);
+      broadcastToRoom(event);
       console.log("user connected");
 
       //on user disconnect
@@ -66,7 +66,7 @@ export function createWebSocketServer(httpServer: HttpServer): WebSocketServer {
         //remove connection
         removeConnection(validChatroomId, socket);
         //broadcast event
-        broadcastToRoom(validChatroomId, event);
+        broadcastToRoom(event);
         console.log("User disconnected");
       });
     } catch {
@@ -74,6 +74,7 @@ export function createWebSocketServer(httpServer: HttpServer): WebSocketServer {
       socket.close(1008, "Connection rejected");
     }
 
+    //on error
     socket.on("error", (error) => {
       console.error("WebSocket error: ", error);
     });
