@@ -1,4 +1,4 @@
-import type WebSocket from "ws";
+import WebSocket from "ws";
 import type { ServerEvent } from "../lib/types.js";
 import { validateUuid } from "../lib/validate.js";
 
@@ -39,6 +39,8 @@ export function broadcastToRoom( event: ServerEvent) {
   const eventJson = JSON.stringify(event);
 
   for (const socket of connections) { // broadcast to every socket in connections
-    socket.send(eventJson);
+    if (socket.readyState === WebSocket.OPEN) { // checks if socket is open
+      socket.send(eventJson); //send event to socket
+    }
   }
 }
