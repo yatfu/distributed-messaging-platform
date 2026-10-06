@@ -3,6 +3,9 @@ import { pool } from "../db.js";
 import { validateUuid, validateString } from "../lib/validate.js";
 import { getUserFromToken } from "../lib/auth.js";
 import crypto from "node:crypto";
+//ws imports
+import { broadcastToRoom } from "../ws/rooms.js";
+import type { ServerEvent, Message } from "../lib/types.js";
 
 const router = express.Router();
 const MAX_MESSAGE_LENGTH = 2000;
@@ -18,6 +21,7 @@ router.post("/", async (req, res) => {
     req.body?.message,
     MAX_MESSAGE_LENGTH,
   );
+  
   //create message
   const messageId = crypto.randomUUID();
   const result = await pool.query(`
@@ -27,15 +31,28 @@ router.post("/", async (req, res) => {
       AND expires_at > NOW()
     RETURNING id, sender_id, content, created_at, edited_at;
   `, [messageId, validChatroomId, validUser.id, validMessage]) // INSERT -> SELECT inserts only after select
+  
   //check to see if message was inserted
   if (result.rows.length === 0) {
     return res.status(404).json({ error: "Chatroom expired or not found"}); //404: chatroom not found or expired
   }
+
+  // convert to Message object, convert snakecase to camelcase
+  const row = result.rows[0];
+  const message = {
+    id: row.id,
+    senderId: row.sender_id,
+    content: row.content,
+    createdAt: row.created_at.toISOString(),
+    editedAt: row.edited_at ? row.edited_at.toISOString() : null,
+    username: validUser.name,
+  } satisfies Message;
+
+  //broadcast
+  broadcastToRoom({ type: "message.created", chatroomId: validChatroomId, message: message });
+
   return res.status(201).json({
-    message: {
-      ...result.rows[0],
-      username: validUser.name,
-    },
+    message: message,
   }); // 201: message created
 });
 // EDIT message given message id and user session token - NOT MVP STAGE
