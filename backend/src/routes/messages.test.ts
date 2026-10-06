@@ -44,7 +44,7 @@ describe("POST /api/messages", () => {
 
     expect(response.body.message.content).toBe("Hello");
     expect(response.body.message.username).toBe("Test User");
-    expect(response.body.message.edited_at).toBeNull();
+    expect(response.body.message.editedAt).toBeNull();
   });
 
   it("rejects creating a message without authentication", async () => {
@@ -169,7 +169,7 @@ describe("GET /api/chatrooms/:chatroomId/messages", () => {
     expect(response.body.messages).toHaveLength(1);
     expect(response.body.messages[0].content).toBe("Hello");
     expect(response.body.messages[0].username).toBe("Test User");
-    expect(response.body.messages[0].edited_at).toBeNull();
+    expect(response.body.messages[0].editedAt).toBeNull();
   });
 });
 
@@ -190,7 +190,7 @@ describe("DELETE /api/messages/:messageId", () => {
       .expect(200);
 
     expect(deleted.body.message.username).toBe("Test User");
-    expect(deleted.body.message.edited_at).toBeNull();
+    expect(deleted.body.message.editedAt).toBeNull();
   });
 
   it("rejects deleting a message sent by another user", async () => {

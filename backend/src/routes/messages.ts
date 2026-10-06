@@ -5,7 +5,7 @@ import { getUserFromToken } from "../lib/auth.js";
 import crypto from "node:crypto";
 //ws imports
 import { broadcastToRoom } from "../ws/rooms.js";
-import type { ServerEvent, Message } from "../lib/types.js";
+import type { Message } from "../lib/types.js";
 
 const router = express.Router();
 const MAX_MESSAGE_LENGTH = 2000;
@@ -21,7 +21,7 @@ router.post("/", async (req, res) => {
     req.body?.message,
     MAX_MESSAGE_LENGTH,
   );
-  
+
   //create message
   const messageId = crypto.randomUUID();
   const result = await pool.query(`
@@ -29,7 +29,12 @@ router.post("/", async (req, res) => {
     SELECT $1, id, $3, $4 FROM chatrooms
     WHERE id = $2
       AND expires_at > NOW()
-    RETURNING id, sender_id, content, created_at, edited_at;
+    RETURNING
+      id,
+      sender_id AS "senderId",
+      content,
+      created_at AS "createdAt",
+      edited_at AS "editedAt";
   `, [messageId, validChatroomId, validUser.id, validMessage]) // INSERT -> SELECT inserts only after select
   
   //check to see if message was inserted
@@ -37,23 +42,20 @@ router.post("/", async (req, res) => {
     return res.status(404).json({ error: "Chatroom expired or not found"}); //404: chatroom not found or expired
   }
 
-  // convert to Message object, convert snakecase to camelcase
+  // Convert PostgreSQL dates to JSON strings and add the username.
   const row = result.rows[0];
   const message = {
     id: row.id,
-    senderId: row.sender_id,
+    senderId: row.senderId,
     content: row.content,
-    createdAt: row.created_at.toISOString(),
-    editedAt: row.edited_at ? row.edited_at.toISOString() : null,
+    createdAt: row.createdAt.toISOString(),
+    editedAt: row.editedAt ? row.editedAt.toISOString() : null,
     username: validUser.name,
   } satisfies Message;
 
-  //broadcast
+  //broadcast and return
   broadcastToRoom({ type: "message.created", chatroomId: validChatroomId, message: message });
-
-  return res.status(201).json({
-    message: message,
-  }); // 201: message created
+  return res.status(201).json({ message: message }); // 201: message created
 });
 // EDIT message given message id and user session token - NOT MVP STAGE
 
@@ -70,18 +72,33 @@ router.delete("/:messageId", async (req, res) => {
   const result = await pool.query(
     `DELETE FROM messages
      WHERE id = $1 AND sender_id = $2
-     RETURNING id, sender_id, content, created_at, edited_at`,
+     RETURNING
+       id,
+       sender_id AS "senderId",
+       chatroom_id AS "chatroomId",
+       content,
+       created_at AS "createdAt",
+       edited_at AS "editedAt"`,
     [validMessageId, validUserId]
   );
   if (result.rowCount === 0) {
     return res.status(404).json({ error: "Message not found" });
   }
-  return res.status(200).json({
-    message: {
-      ...result.rows[0],
-      username: validUser.name,
-    },
-  });
+
+  //generate message
+  const row = result.rows[0];
+  const message = {
+    id: row.id,
+    senderId: row.senderId,
+    content: row.content,
+    createdAt: row.createdAt.toISOString(),
+    editedAt: row.editedAt ? row.editedAt.toISOString() : null,
+    username: validUser.name,
+  } satisfies Message;
+  //broadcast
+  broadcastToRoom({type: "message.deleted", chatroomId: row.chatroomId, messageId: row.id})
+
+  return res.status(200).json({ message });
 });
 
 export default router;

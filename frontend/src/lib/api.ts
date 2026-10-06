@@ -44,18 +44,18 @@ export async function createChatroom(name: string): Promise<Chatroom> {
     typeof data.id !== "string" ||
     !("name" in data) ||
     typeof data.name !== "string" ||
-    !("created_at" in data) ||
-    typeof data.created_at !== "string" ||
-    !("expires_at" in data) ||
-    typeof data.expires_at !== "string"
+    !("createdAt" in data) ||
+    typeof data.createdAt !== "string" ||
+    !("expiresAt" in data) ||
+    typeof data.expiresAt !== "string"
   ) {
     throw new Error("Invalid chatroom response");
   }
   return {
     id: data.id,
     name: data.name,
-    createdAt: data.created_at,
-    expiresAt: data.expires_at,
+    createdAt: data.createdAt,
+    expiresAt: data.expiresAt,
   };
 }
 
@@ -160,10 +160,10 @@ export async function getChatroom(chatroomId: string): Promise<Chatroom> {
     typeof data.chatroom.id !== "string" ||
     !("name" in data.chatroom) ||
     typeof data.chatroom.name !== "string" ||
-    !("created_at" in data.chatroom) ||
-    typeof data.chatroom.created_at !== "string" ||
-    !("expires_at" in data.chatroom) ||
-    typeof data.chatroom.expires_at !== "string"
+    !("createdAt" in data.chatroom) ||
+    typeof data.chatroom.createdAt !== "string" ||
+    !("expiresAt" in data.chatroom) ||
+    typeof data.chatroom.expiresAt !== "string"
   ) {
     throw new Error("Invalid chatroom response");
   }
@@ -171,8 +171,8 @@ export async function getChatroom(chatroomId: string): Promise<Chatroom> {
   return {
     id: data.chatroom.id,
     name: data.chatroom.name,
-    createdAt: data.chatroom.created_at,
-    expiresAt: data.chatroom.expires_at,
+    createdAt: data.chatroom.createdAt,
+    expiresAt: data.chatroom.expiresAt,
   };
 }
 
@@ -209,14 +209,14 @@ export async function getMessages(chatroomId: string): Promise<Message[]> {
       message === null ||
       !("id" in message) ||
       typeof message.id !== "string" ||
-      !("sender_id" in message) ||
-      typeof message.sender_id !== "string" ||
+      !("senderId" in message) ||
+      typeof message.senderId !== "string" ||
       !("content" in message) ||
       typeof message.content !== "string" ||
-      !("created_at" in message) ||
-      typeof message.created_at !== "string" ||
-      !("edited_at" in message) ||
-      (message.edited_at !== null && typeof message.edited_at !== "string") ||
+      !("createdAt" in message) ||
+      typeof message.createdAt !== "string" ||
+      !("editedAt" in message) ||
+      (message.editedAt !== null && typeof message.editedAt !== "string") ||
       !("username" in message) ||
       typeof message.username !== "string"
     ) {
@@ -225,10 +225,10 @@ export async function getMessages(chatroomId: string): Promise<Message[]> {
 
     return {
       id: message.id,
-      senderId: message.sender_id,
+      senderId: message.senderId,
       content: message.content,
-      createdAt: message.created_at,
-      editedAt: message.edited_at,
+      createdAt: message.createdAt,
+      editedAt: message.editedAt,
       username: message.username,
     };
   });
@@ -280,15 +280,15 @@ export async function createMessage(
     data.message === null ||
     !("id" in data.message) ||
     typeof data.message.id !== "string" ||
-    !("sender_id" in data.message) ||
-    typeof data.message.sender_id !== "string" ||
+    !("senderId" in data.message) ||
+    typeof data.message.senderId !== "string" ||
     !("content" in data.message) ||
     typeof data.message.content !== "string" ||
-    !("created_at" in data.message) ||
-    typeof data.message.created_at !== "string" ||
-    !("edited_at" in data.message) ||
-    (data.message.edited_at !== null &&
-      typeof data.message.edited_at !== "string") ||
+    !("createdAt" in data.message) ||
+    typeof data.message.createdAt !== "string" ||
+    !("editedAt" in data.message) ||
+    (data.message.editedAt !== null &&
+      typeof data.message.editedAt !== "string") ||
     !("username" in data.message) ||
     typeof data.message.username !== "string"
   ) {
@@ -297,10 +297,10 @@ export async function createMessage(
 
   return {
     id: data.message.id,
-    senderId: data.message.sender_id,
+    senderId: data.message.senderId,
     content: data.message.content,
-    createdAt: data.message.created_at,
-    editedAt: data.message.edited_at,
+    createdAt: data.message.createdAt,
+    editedAt: data.message.editedAt,
     username: data.message.username,
   };
 }
@@ -332,15 +332,15 @@ export async function deleteMessage(messageId: string): Promise<Message> {
     data.message === null ||
     !("id" in data.message) ||
     typeof data.message.id !== "string" ||
-    !("sender_id" in data.message) ||
-    typeof data.message.sender_id !== "string" ||
+    !("senderId" in data.message) ||
+    typeof data.message.senderId !== "string" ||
     !("content" in data.message) ||
     typeof data.message.content !== "string" ||
-    !("created_at" in data.message) ||
-    typeof data.message.created_at !== "string" ||
-    !("edited_at" in data.message) ||
-    (data.message.edited_at !== null &&
-      typeof data.message.edited_at !== "string") ||
+    !("createdAt" in data.message) ||
+    typeof data.message.createdAt !== "string" ||
+    !("editedAt" in data.message) ||
+    (data.message.editedAt !== null &&
+      typeof data.message.editedAt !== "string") ||
     !("username" in data.message) ||
     typeof data.message.username !== "string"
   ) {
@@ -349,10 +349,10 @@ export async function deleteMessage(messageId: string): Promise<Message> {
 
   return {
     id: data.message.id,
-    senderId: data.message.sender_id,
+    senderId: data.message.senderId,
     content: data.message.content,
-    createdAt: data.message.created_at,
-    editedAt: data.message.edited_at,
+    createdAt: data.message.createdAt,
+    editedAt: data.message.editedAt,
     username: data.message.username,
   };
 }

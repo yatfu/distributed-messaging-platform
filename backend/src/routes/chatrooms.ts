@@ -36,7 +36,11 @@ router.post("/", async (req, res) => {
   const result = await pool.query(
     `INSERT INTO chatrooms (id, admin_id, name, expires_at) 
     VALUES ($1, $2, $3, NOW() + INTERVAL '1 day') 
-    RETURNING id, name, created_at, expires_at;`,
+    RETURNING
+      id,
+      name,
+      created_at AS "createdAt",
+      expires_at AS "expiresAt";`,
     [roomId, validUserId, validName]
   );
 
@@ -51,7 +55,11 @@ router.get("/:chatroomId", async (req, res) => {
   //get chatroom
   const result = await pool.query(
     `
-    SELECT id, name, created_at, expires_at
+    SELECT
+      id,
+      name,
+      created_at AS "createdAt",
+      expires_at AS "expiresAt"
     FROM chatrooms
     WHERE id = $1
     AND expires_at > NOW();
@@ -87,10 +95,10 @@ router.get("/:chatroomId/messages", async (req, res) => {
   const result = await pool.query(
     `SELECT
     m.id,
-    m.sender_id,
+    m.sender_id AS "senderId",
     m.content,
-    m.created_at,
-    m.edited_at,
+    m.created_at AS "createdAt",
+    m.edited_at AS "editedAt",
     u.name AS username
   FROM messages m
   JOIN users u ON u.id = m.sender_id
