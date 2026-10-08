@@ -16,6 +16,7 @@ export function addConnection(chatroomId: string, socket: WebSocket) {
     roomConnections.set(chatroomId, connections); // add set to connection manager Map
   }
   connections.add(socket); // add websocket to set
+  console.log("WebSocket connection added");
 }
 
 export function removeConnection(chatroomId: string, socket: WebSocket) {
@@ -24,8 +25,10 @@ export function removeConnection(chatroomId: string, socket: WebSocket) {
     return;
   }
   connections.delete(socket);
+  console.log("WebSocket connection removed");
   if (connections.size === 0) {
     roomConnections.delete(chatroomId);
+    console.log("room has no connections");
   }
 }
 
@@ -38,9 +41,14 @@ export function broadcastToRoom( event: ServerEvent) {
   // call socket.send(...)
   const eventJson = JSON.stringify(event);
 
+  let didBroadcast = false;
   for (const socket of connections) { // broadcast to every socket in connections
     if (socket.readyState === WebSocket.OPEN) { // checks if socket is open
       socket.send(eventJson); //send event to socket
+      didBroadcast = true;
     }
+  }
+  if (didBroadcast) {
+    console.log("Broadcast sent")
   }
 }

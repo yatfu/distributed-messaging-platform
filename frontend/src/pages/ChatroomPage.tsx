@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import MessageForm from "../components/messageForm";
 import MessageList from "../components/messageList";
 import { getChatroom, getMessages, getCurrentUser } from "../lib/api";
-import type { Chatroom, Message, User } from "../lib/types";
+import type { ServerEvent, Chatroom, Message, User } from "../lib/types";
 
 export default function ChatroomPage() {
   const { chatroomId } = useParams<{ chatroomId: string }>();
@@ -22,6 +22,7 @@ function Chatroom({ chatroomId }: { chatroomId: string }) {
   const [copyStatus, setCopyStatus] = useState("");
   const [currentUser, setCurrentUser] = useState<User | null>(null);
 
+  // load room
   useEffect(() => {
     async function loadRoom() {
       try {
@@ -40,7 +41,32 @@ function Chatroom({ chatroomId }: { chatroomId: string }) {
     }
 
     void loadRoom();
-  }, [chatroomId]);
+  }, [chatroomId]); // chatroomId is required in case component is rerendered without remounting
+
+  // open websocket
+  useEffect(() => {
+    const url = new URL("/ws", import.meta.env.VITE_API_URL);
+
+    // generate url for websocket to connect to backend
+    if (url.protocol === "https:") {
+      url.protocol = "wss:"; // https => secure websocket
+    }
+    else {
+      url.protocol = "ws:"; // http => regular websocket
+    }
+    url.searchParams.set("chatroomId", chatroomId);
+    // connect socket
+    const socket = new WebSocket(url);
+    // open socket
+    socket.onopen = () => {
+      console.log("WebSocket connected");
+    }
+    //close socket 
+    return function () {
+      socket.close();
+    };
+
+  }, [chatroomId]); // chatroomId is required in case component is rerendered without remounting
 
   //conditional render
   if (error) {

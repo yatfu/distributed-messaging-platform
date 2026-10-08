@@ -12,6 +12,28 @@ export type User = {
   name: string;
 };
 
+export type ServerEvent =
+  | {
+      type: "message.created";
+      chatroomId: string;
+      message: Message;
+    }
+  | {
+      type: "message.deleted";
+      chatroomId: string;
+      messageId: string;
+    }
+  | {
+      type: "user.joined";
+      chatroomId: string;
+      user: User;
+    }
+  | {
+      type: "user.left";
+      chatroomId: string;
+      user: User;
+    };
+
 export type Chatroom = {
   id: string;
   name: string;
