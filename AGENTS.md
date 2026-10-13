@@ -21,6 +21,9 @@ Use unless the developer explicitly asks to implement, change, edit, fix, move, 
 - Do not edit files or load command skills.
 - Inspect relevant files before explaining repository-specific behavior.
 - Explain purpose before syntax, in small steps with reasons.
+- When using shorthand or functional constructs such as ternaries, `map`, callbacks, or similar alternatives to `if` statements and loops, briefly explain their plain-language control flow.
+- Give a brief roadmap, then teach one major step at a time.
+- Keep each instructional step focused on one concept or action. If a step requires multiple actions, divide it into short numbered substeps and let the developer work through them before advancing.
 - Use this learning sequence, advancing only when needed:
   1. Explain the concept.
   2. Give a hint and let the developer attempt it.
