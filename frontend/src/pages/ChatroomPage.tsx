@@ -41,7 +41,7 @@ function Chatroom({ chatroomId }: { chatroomId: string }) {
         setCurrentUser(loadedUser);
         //temp storage for updating events
         let temp = loadedMessages
-        for (let event of eventsBuffer.current) {
+        for (const event of eventsBuffer.current) {
           // message created events
           temp = handleServerEvent(temp, event);
         }
