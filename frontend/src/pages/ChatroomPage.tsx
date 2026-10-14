@@ -4,10 +4,7 @@ import MessageForm from "../components/messageForm";
 import MessageList from "../components/messageList";
 import { getChatroom, getMessages, getCurrentUser } from "../lib/api";
 import type { ServerEvent, Chatroom, Message, User } from "../lib/types";
-import {
-  isMessageCreatedEvent,
-  isMessageDeletedEvent,
-} from "../lib/validation";
+import { isMessageEvent } from "../lib/validation";
 
 export default function ChatroomPage() {
   const { chatroomId } = useParams<{ chatroomId: string }>();
@@ -26,22 +23,31 @@ function Chatroom({ chatroomId }: { chatroomId: string }) {
   const [copyStatus, setCopyStatus] = useState("");
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   // useRef: value that persists across renders, doesnt trigger rerender when changed
-  const initialLoadingRef = useRef(false); // used to execute websocket after http loading completes
-  const validatedWebSocketEvents = useRef<ServerEvent[]>([]); // buffer for websocket events that occur before http loading completes
+  const initialLoadingIsComplete = useRef(false); // used to execute websocket after http loading completes
+  const eventsBuffer = useRef<ServerEvent[]>([]); // buffer for websocket events that occur before http loading completes
 
   // load room
   useEffect(() => {
     async function loadRoom() {
       try {
-        const [loadedChatroom, loadedMessages, loadedUser] = await Promise.all([ // Promise.all only passes if all pass
+        const [loadedChatroom, loadedMessages, loadedUser] = await Promise.all([
+          // Promise.all only passes if all pass
           getChatroom(chatroomId),
           getMessages(chatroomId),
           getCurrentUser().catch(() => null),
         ]);
 
         setChatroom(loadedChatroom);
-        setMessages(loadedMessages);
         setCurrentUser(loadedUser);
+        //temp storage for updating events
+        let temp = loadedMessages
+        for (let event of eventsBuffer.current) {
+          // message created events
+          temp = handleServerEvent(temp, event);
+        }
+        setMessages(temp);
+        eventsBuffer.current = [];
+        initialLoadingIsComplete.current = true;
       } catch {
         setError("Could not load room or messages");
       }
@@ -69,10 +75,22 @@ function Chatroom({ chatroomId }: { chatroomId: string }) {
     };
     // on message
     socket.onmessage = (event) => {
-      const data: unknown = JSON.parse(event.data);
-      setMessages((currentMessages) =>
-        handleServerEvent(currentMessages, data, chatroomId)
-      );
+      let data: unknown;
+      try {
+        data = JSON.parse(event.data);
+      } catch {
+        return; // ignore invalid data, WebSockets doesnt need a response
+      }
+      const validEvent = isMessageEvent(data, chatroomId);
+      if (!validEvent) {
+        return;
+      } else if (!initialLoadingIsComplete.current) {
+        eventsBuffer.current.push(validEvent);
+      } else {
+        setMessages((currentMessages) =>
+          handleServerEvent(currentMessages, validEvent)
+        );
+      }
     };
 
     //close socket
@@ -142,33 +160,21 @@ function Chatroom({ chatroomId }: { chatroomId: string }) {
 // Apply one WebSocket event to a message array.
 function handleServerEvent(
   messages: Message[],
-  eventData: unknown,
-  chatroomId: string,
+  eventData: ServerEvent
 ): Message[] {
-  const validMessageCreatedEventData = isMessageCreatedEvent(eventData);
-  if (
-    validMessageCreatedEventData &&
-    validMessageCreatedEventData.chatroomId === chatroomId
-  ) {
+  if (eventData.type === "message.created") {
     // The HTTP response and WebSocket event can contain the same message.
     if (
-      messages.filter(
-        (message) => message.id === validMessageCreatedEventData.message.id
-      ).length > 0
+      messages.filter((message) => message.id === eventData.message.id).length >
+      0
     ) {
       return messages;
     }
-    return [...messages, validMessageCreatedEventData.message];
+    return [...messages, eventData.message];
   }
 
-  const validMessageDeletedEventData = isMessageDeletedEvent(eventData);
-  if (
-    validMessageDeletedEventData &&
-    validMessageDeletedEventData.chatroomId === chatroomId
-  ) {
-    return messages.filter(
-      (message) => message.id !== validMessageDeletedEventData.messageId
-    );
+  if (eventData.type === "message.deleted") {
+    return messages.filter((message) => message.id !== eventData.messageId);
   }
 
   return messages;

@@ -1,14 +1,26 @@
 import type { ServerEvent } from "./types";
 
-type MessageCreatedEvent = Extract<ServerEvent, { type: "message.created" }>;
 
-type MessageDeletedEvent = Extract<ServerEvent, { type: "message.deleted" }>;
+// isMessageEvent: checks if input is a server event with correct type
+// built on top of isMessageCreatedEvent and isMessageDeletedEvent
+export function isMessageEvent(
+  value: unknown,
+  chatroomId: string,
+): ServerEvent | null {
+  const event = isMessageCreatedEvent(value) ?? isMessageDeletedEvent(value);
+
+  if (!event || event.chatroomId !== chatroomId) {
+    return null;
+  }
+
+  return event;
+}
 
 //validation function
 // returns ServerEvent
 export function isMessageCreatedEvent(
   value: unknown
-): MessageCreatedEvent | null {
+): ServerEvent | null {
   if (typeof value !== "object" || value === null) {
     return null;
   }
@@ -30,12 +42,12 @@ export function isMessageCreatedEvent(
   ) {
     return null;
   }
-  return value as MessageCreatedEvent;
+  return value as ServerEvent;
 }
 
 export function isMessageDeletedEvent(
   value: unknown
-): MessageDeletedEvent | null {
+): ServerEvent | null {
   if (typeof value !== "object" || value === null) {
       return null;
   }
@@ -46,5 +58,5 @@ export function isMessageDeletedEvent(
     ) {
       return null;
   }
-  return value as MessageDeletedEvent;
+  return value as ServerEvent;
 }
