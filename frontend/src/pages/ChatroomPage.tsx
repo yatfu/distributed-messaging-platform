@@ -139,18 +139,19 @@ function Chatroom({ chatroomId }: { chatroomId: string }) {
       />
       <MessageForm
         chatroomId={chatroom.id}
+        // filters messages for the created message to see if its already created, since every create sends two duplicate update requests
+        // sending requests from all sources is the conventional approach
         onMessageCreated={(createdMessage) => {
-          if (
-            // filters messages for the created message to see if its already created, since every create sends two duplicate update requests
-            // sending requests from all sources is the conventional approach
-            messages.filter((message) => message.id === createdMessage.id)
-              .length > 0
-          ) {
-            setMessages((currentMessages) => [
-              ...currentMessages,
-              createdMessage,
-            ]);
-          }
+          setMessages((currentMessages) => {
+            if (
+              currentMessages.filter((message) => {
+                return message.id === createdMessage.id;
+              }).length === 0
+            ) {
+              return [...currentMessages, createdMessage];
+            }
+            return currentMessages;
+          });
         }}
       />
     </div>
