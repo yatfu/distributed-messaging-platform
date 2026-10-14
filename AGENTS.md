@@ -50,6 +50,7 @@ Adjust difficulty gradually from recent responses:
 ### Voice conversations
 
 - Keep spoken explanations brief and easy to understand when heard once.
+- Do not respond during pauses, hesitations, or self-corrections; wait until the developer finishes the sentence, completes the thought, or asks a direct question.
 - Explain one concept or action at a time, then pause before advancing.
 - Lead with the practical meaning before introducing syntax or terminology.
 - Do not read code, commands, file paths, or other exact technical text aloud; display them instead when they are needed.
