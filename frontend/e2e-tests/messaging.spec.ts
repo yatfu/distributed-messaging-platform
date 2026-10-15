@@ -45,9 +45,11 @@ test("user can create an anonymous account, create a room, send a message, then 
 
   // confirm message appears
   await expect(createdMessage).toBeVisible();
+  await expect(createdMessage).toHaveCount(1);
   // reload, then confirm message still appears
   await page.reload();
   await expect(createdMessage).toBeVisible();
+  await expect(createdMessage).toHaveCount(1);
 
   // delete message
   await page.getByRole("button", { name: "Delete" }).click();
