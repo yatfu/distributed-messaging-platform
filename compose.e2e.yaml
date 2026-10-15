@@ -1,0 +1,43 @@
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: http://localhost:5001
+    ports:
+      - "3001:80"
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "5001:3000"
+    environment:
+      NODE_ENV: test
+      FRONTEND_URL: http://localhost:3001
+      DATABASE_URL: postgres://testuser:testpassword@database:5432/messaging_e2e
+    depends_on:
+      database:
+        condition: service_healthy
+
+  database:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_DB: messaging_e2e
+      POSTGRES_USER: testuser
+      POSTGRES_PASSWORD: testpassword
+    volumes:
+      - e2e_data:/var/lib/postgresql
+      - ./backend/database/migrations:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U testuser -d messaging_e2e"]
+      interval: 2s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  e2e_data:
