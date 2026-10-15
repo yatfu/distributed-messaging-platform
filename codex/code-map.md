@@ -1,6 +1,7 @@
 # Code Map
 
 - `frontend/`: React user interface, routing, API client, and frontend types.
+- `frontend/e2e-tests/`: Playwright browser journeys for the frontend.
 - `backend/`: Express API, authentication, validation, WebSockets, and automated tests.
 - `backend/database/`: PostgreSQL migrations and cleanup scripts.
 - `.github/workflows/`: Continuous integration workflows.
