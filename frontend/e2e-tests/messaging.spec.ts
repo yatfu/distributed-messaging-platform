@@ -5,7 +5,7 @@ test("user can create an anonymous account, create a room, send a message, then 
   page,
 }) => {
   const now = Date.now(); // name/content
-  const username = `Test User ${now}`;
+  const username = `User ${now}`; // 20 Characters long
   const roomName = `Test Room ${now}`;
   const messageContent = `Test message ${now}`;
 
