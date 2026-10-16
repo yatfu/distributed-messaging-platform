@@ -26,7 +26,7 @@ router.post("/", async (req, res) => {
   if (req.body?.name === undefined) {
     validName = "Chatroom";
   } else {
-    validName = validateString(req.body.name, "name", 50);
+    validName = validateString(req.body.name, 50);
   }
 
   console.log("Passed Validation, generating data for chatroom creation");
@@ -36,7 +36,11 @@ router.post("/", async (req, res) => {
   const result = await pool.query(
     `INSERT INTO chatrooms (id, admin_id, name, expires_at) 
     VALUES ($1, $2, $3, NOW() + INTERVAL '1 day') 
-    RETURNING id, name, created_at, expires_at;`,
+    RETURNING
+      id,
+      name,
+      created_at AS "createdAt",
+      expires_at AS "expiresAt";`,
     [roomId, validUserId, validName]
   );
 
@@ -47,11 +51,15 @@ router.post("/", async (req, res) => {
 router.get("/:chatroomId", async (req, res) => {
   const { chatroomId } = req.params;
   //validate
-  const validChatroomId = validateUuid(chatroomId, "chatroomId");
+  const validChatroomId = validateUuid(chatroomId);
   //get chatroom
   const result = await pool.query(
     `
-    SELECT id, name, created_at, expires_at
+    SELECT
+      id,
+      name,
+      created_at AS "createdAt",
+      expires_at AS "expiresAt"
     FROM chatrooms
     WHERE id = $1
     AND expires_at > NOW();
@@ -69,7 +77,7 @@ router.get("/:chatroomId", async (req, res) => {
 router.get("/:chatroomId/messages", async (req, res) => {
   const { chatroomId } = req.params;
   // validate
-  const validChatroomId = validateUuid(chatroomId, "chatroomId");
+  const validChatroomId = validateUuid(chatroomId);
 
   const roomResult = await pool.query(
     `SELECT id
@@ -87,10 +95,10 @@ router.get("/:chatroomId/messages", async (req, res) => {
   const result = await pool.query(
     `SELECT
     m.id,
-    m.sender_id,
+    m.sender_id AS "senderId",
     m.content,
-    m.created_at,
-    m.edited_at,
+    m.created_at AS "createdAt",
+    m.edited_at AS "editedAt",
     u.name AS username
   FROM messages m
   JOIN users u ON u.id = m.sender_id
@@ -108,7 +116,7 @@ router.get("/:chatroomId/messages", async (req, res) => {
 router.delete("/:chatroomId", async (req, res) => {
   const { chatroomId } = req.params;
   //validate
-  const validChatroomId = validateUuid(chatroomId, "chatroomId");
+  const validChatroomId = validateUuid(chatroomId);
   const user = await getUserFromToken(req.cookies.sessionToken);
 
   // query deletion

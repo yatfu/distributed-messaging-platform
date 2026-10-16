@@ -1,0 +1,70 @@
+name: Playwright End-to-End Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    env:
+      E2E_BASE_URL: http://localhost:3001
+      PLAYWRIGHT_HTML_OPEN: never
+
+    steps:
+      - name: Download repository
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Install Chromium
+        working-directory: frontend
+        run: npx playwright install --with-deps chromium
+
+      - name: Build and start application
+        run: docker compose -f compose.e2e.yaml up --build -d
+
+      - name: Wait for application
+        shell: bash
+        run: |
+          curl --fail --retry 30 --retry-all-errors --retry-delay 2 --max-time 5 http://localhost:5001/api/health
+          curl --fail --retry 30 --retry-all-errors --retry-delay 2 --max-time 5 http://localhost:3001
+
+      - name: Run Playwright tests
+        working-directory: frontend
+        run: npm run playwright:e2e -- --project=chromium --workers=1 --retries=1 --reporter=html
+
+      - name: Collect container logs
+        if: always()
+        run: docker compose -f compose.e2e.yaml logs --no-color > container-logs.txt
+
+      - name: Upload test results and logs
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: playwright-results
+          path: |
+            frontend/playwright-report/
+            frontend/test-results/
+            container-logs.txt
+          retention-days: 7
+
+      - name: Stop application and remove test database
+        if: always()
+        run: docker compose -f compose.e2e.yaml down --volumes

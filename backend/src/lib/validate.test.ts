@@ -3,20 +3,20 @@ import { validateString, validateUuid } from "./validate.js";
 
 describe("validateString", () => {
   it("returns a trimmed non-empty string", () => {
-    expect(validateString(" hello ","message with trailing spaces")).toBe("hello");
+    expect(validateString(" hello ")).toBe("hello");
   });
 
   it("rejects validating an empty string", () => {
-    expect(() => validateString("", "empty message")).toThrow();
+    expect(() => validateString("")).toThrow();
   });
 
   it("rejects validating a non-string value", () => {
-    expect(() => validateString(67, "non-string message")).toThrow();
+    expect(() => validateString(67)).toThrow();
   });
 
   it("rejects a string longer than the maximum length", () => {
-    expect(() => validateString("hello", "message", 4)).toThrow(
-      "message must contain at most 4 characters",
+    expect(() => validateString("hello", 4)).toThrow(
+      "Value must contain at most 4 characters",
     );
   });
 });
@@ -24,9 +24,9 @@ describe("validateString", () => {
 describe("validateUuid", () => {
   it("returns a string when it contains a valid UUID", () => {
     const id="550e8400-e29b-41d4-a716-446655440000";
-    expect(validateUuid(id, "valid-uuid")).toBe(id);
+    expect(validateUuid(id)).toBe(id);
   });
   it("rejects validating an invalid UUID", () => {
-    expect(() => validateUuid("67", "invalid-uuid")).toThrow();
+    expect(() => validateUuid("67")).toThrow();
   });
 });
