@@ -1,6 +1,5 @@
 import WebSocket from "ws";
 import type { ServerEvent } from "../lib/types.js";
-import { validateUuid } from "../lib/validate.js";
 
 // create room connection manager
 const roomConnections = new Map<
@@ -20,7 +19,7 @@ export function addConnection(chatroomId: string, socket: WebSocket) {
 }
 
 export function removeConnection(chatroomId: string, socket: WebSocket) {
-  let connections = roomConnections.get(chatroomId);
+  const connections = roomConnections.get(chatroomId);
   if (!connections) {
     return;
   }
@@ -34,7 +33,7 @@ export function removeConnection(chatroomId: string, socket: WebSocket) {
 
 export function broadcastToRoom( event: ServerEvent) {
   // get Set from Map
-  let connections = roomConnections.get(event.chatroomId);
+  const connections = roomConnections.get(event.chatroomId);
   if (!connections) {
     return;
   }

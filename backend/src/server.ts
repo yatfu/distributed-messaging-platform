@@ -5,7 +5,7 @@ import { createWebSocketServer } from "./ws/server.js";
 
 const port = Number(process.env.PORT) || 3000;
 //create http server
-let server = createServer(app);
+const server = createServer(app);
 //upgrade http server to websocket server
 createWebSocketServer(server);
 //start server
